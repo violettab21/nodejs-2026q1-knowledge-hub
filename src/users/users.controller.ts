@@ -6,10 +6,13 @@ import {
   Put,
   Param,
   Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserParams } from './dto/user-params.dto';
 
 @Controller('user')
 export class UsersController {
@@ -26,17 +29,33 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  findOne(@Param() params: UserParams) {
+    const user = this.usersService.findOne(params.id);
+    if (user) {
+      return user;
+    }
+    throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  update(@Param() params: UserParams, @Body() updateUserDto: UpdateUserDto) {
+    const user = this.usersService.update(params.id, updateUserDto);
+    if ('error' in user) {
+      if (user.code === 'password') {
+        throw new HttpException(user.errorMessage, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException(user.errorMessage, HttpStatus.NOT_FOUND);
+    }
+
+    return user;
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  remove(@Param() params: UserParams) {
+    const user = this.usersService.remove(params.id);
+    if (user) {
+      return user;
+    }
+    throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
   }
 }

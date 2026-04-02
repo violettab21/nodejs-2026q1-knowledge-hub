@@ -16,6 +16,9 @@ export interface IUsersStorage {
   getUsers(): IUserResponse[];
   getUserById(id: string): IUserResponse;
   createUser(createUserDto: CreateUserDto): IUserResponse;
-  updateUser(id: string, updateUserDto: UpdateUserDto): IUserResponse | null;
+  updateUser(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): IUserResponse | { code: string; error: boolean; errorMessage: string };
   removeUser(id: string): IUserResponse | null;
 }

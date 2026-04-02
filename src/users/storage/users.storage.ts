@@ -46,10 +46,18 @@ export class UsersStorage implements IUsersStorage {
         const { password, ...rest } = updatedUser;
         return rest;
       } else {
-        return null;
+        return {
+          code: 'password',
+          error: true,
+          errorMessage: 'Old Password is incorrect',
+        };
       }
     }
-    return null;
+    return {
+      code: 'not found',
+      error: true,
+      errorMessage: 'User is not found',
+    };
   }
 
   removeUser(id: string) {
