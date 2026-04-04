@@ -42,14 +42,14 @@ export class ArticlesStorage implements IArticlesStorage {
 
   updateArticle(id: string, updateArticleDto: UpdateArticleDto) {
     //TODO validate userId and categoryID if records exist
-    let updatedArticle = this.articles.find((article) => article.id === id);
+    const updatedArticle = this.articles.find((article) => article.id === id);
 
     if (updatedArticle) {
-      updatedArticle = {
-        ...updatedArticle,
+      Object.assign(updatedArticle, {
         ...updateArticleDto,
         updatedAt: Date.now(),
-      };
+      });
+
       return updatedArticle;
     }
     return null;
