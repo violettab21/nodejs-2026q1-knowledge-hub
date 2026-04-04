@@ -1,11 +1,19 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IUserResponse, IUsersStorage } from './interfaces/users.interface';
+import { CommentsService } from 'src/comments/comments.service';
+import { ArticlesService } from 'src/articles/articles.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject('IUsersStorage') private storage: IUsersStorage) {}
+  constructor(
+    @Inject('IUsersStorage') private storage: IUsersStorage,
+    @Inject(forwardRef(() => CommentsService))
+    private readonly commentsService: CommentsService,
+    @Inject(forwardRef(() => ArticlesService))
+    private readonly articlesService: ArticlesService,
+  ) {}
 
   create(createUserDto: CreateUserDto): IUserResponse {
     const user = this.storage.createUser(createUserDto);
@@ -80,6 +88,8 @@ export class UsersService {
 
     if (user) {
       const { id: userId, login, role, createdAt, updatedAt } = user;
+      this.commentsService.removeUserComments(userId);
+      this.articlesService.cleanAuthorId(userId);
       return {
         id: userId,
         login,

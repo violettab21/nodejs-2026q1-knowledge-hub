@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import {
   ICommentsStorage,
@@ -12,7 +12,9 @@ import { Comment } from './entities/comment.entity';
 export class CommentsService {
   constructor(
     @Inject('ICommentsStorage') private storage: ICommentsStorage,
+    @Inject(forwardRef(() => ArticlesService))
     private readonly articlesService: ArticlesService,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
   ) {}
   create(createCommentDto: CreateCommentDto): Comment | IErrorResponse {
@@ -25,7 +27,7 @@ export class CommentsService {
         field: 'articleId',
       };
     }
-    if (authorId !== null) {
+    if (authorId) {
       const author = this.usersService.findOne(authorId);
       if (!author) {
         return {
@@ -45,5 +47,23 @@ export class CommentsService {
 
   remove(id: string) {
     return this.storage.removeComment(id);
+  }
+
+  removeUserComments(authorId: string) {
+    const comments = this.storage.getComments();
+    comments.forEach((comment) => {
+      if (comment.authorId === authorId) {
+        this.remove(comment.id);
+      }
+    });
+  }
+
+  removeArticleComments(articleId: string) {
+    const comments = this.storage.getComments();
+    comments.forEach((comment) => {
+      if (comment.articleId === articleId) {
+        this.remove(comment.id);
+      }
+    });
   }
 }

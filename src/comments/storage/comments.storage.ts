@@ -18,7 +18,7 @@ export class CommentsStorage implements ICommentsStorage {
     const newComment: Comment = {
       id: randomUUID(),
       ...createCommentDto,
-      authorId: null,
+      authorId: createCommentDto.authorId || null,
       createdAt: Date.now(),
     };
     this.comments.push(newComment);

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import {
@@ -8,13 +8,19 @@ import {
 import { UsersService } from 'src/users/users.service';
 import { CategoriesService } from 'src/categories/categories.service';
 import { Article } from './entities/article.entity';
+import { CommentsService } from 'src/comments/comments.service';
 
 @Injectable()
 export class ArticlesService {
   constructor(
-    @Inject('IArticlesStorage') private storage: IArticlesStorage,
+    @Inject('IArticlesStorage')
+    private storage: IArticlesStorage,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
+    @Inject(forwardRef(() => CategoriesService))
     private readonly categoriesService: CategoriesService,
+    @Inject(forwardRef(() => CommentsService))
+    private readonly commentsService: CommentsService,
   ) {}
   create(createArticleDto: CreateArticleDto): Article | IErrorResponse {
     const { authorId, categoryId } = createArticleDto;
@@ -63,11 +69,40 @@ export class ArticlesService {
     return this.storage.getArticleById(id);
   }
 
+  findUserArticles(userId: string) {
+    return this.storage
+      .getArticles()
+      .filter((article) => article.authorId === userId);
+  }
+
   update(id: string, updateArticleDto: UpdateArticleDto) {
     return this.storage.updateArticle(id, updateArticleDto);
   }
 
   remove(id: string) {
-    return this.storage.removeArticle(id);
+    const article = this.storage.removeArticle(id);
+    if (article) {
+      this.commentsService.removeArticleComments(article.id);
+      return article;
+    }
+    return;
+  }
+
+  cleanAuthorId(userId: string) {
+    const articles = this.storage
+      .getArticles()
+      .filter((article) => article.authorId === userId);
+    articles.forEach((article) => {
+      article.authorId = null;
+    });
+  }
+
+  cleanCategoryId(categoryId: string) {
+    const articles = this.storage
+      .getArticles()
+      .filter((article) => article.categoryId === categoryId);
+    articles.forEach((article) => {
+      article.categoryId = null;
+    });
   }
 }
