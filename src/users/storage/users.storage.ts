@@ -11,16 +11,11 @@ export class UsersStorage implements IUsersStorage {
   constructor() {}
 
   getUsers() {
-    return this.users.map(({ password, ...rest }) => rest);
+    return this.users;
   }
 
   getUserById(id: string) {
-    const foundUser = this.users.find((user) => user.id === id);
-    if (foundUser) {
-      const { password, ...rest } = foundUser;
-      return rest;
-    }
-    return null;
+    return this.users.find((user) => user.id === id);
   }
 
   createUser(createUserDto: CreateUserDto) {
@@ -32,40 +27,24 @@ export class UsersStorage implements IUsersStorage {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
-    const { password, ...rest } = newUser;
     this.users.push(newUser);
-    return rest;
+    return newUser;
   }
 
   updateUser(id: string, updateUserDto: UpdateUserDto) {
-    const updatedUser = this.users.find((user) => user.id === id);
+    const updatedUser = this.getUserById(id);
     if (updatedUser) {
-      if (updatedUser.password === updateUserDto.oldPassword) {
-        updatedUser.password === updateUserDto.newPassword;
-        updatedUser.updatedAt = Date.now();
-        const { password, ...rest } = updatedUser;
-        return rest;
-      } else {
-        return {
-          code: 'password',
-          error: true,
-          errorMessage: 'Old Password is incorrect',
-        };
-      }
+      updatedUser.password = updateUserDto.newPassword;
+      return updatedUser;
     }
-    return {
-      code: 'not found',
-      error: true,
-      errorMessage: 'User is not found',
-    };
+    return null;
   }
 
   removeUser(id: string) {
-    const deletedUser = this.users.find((user) => user.id === id);
+    const deletedUser = this.getUserById(id);
     if (deletedUser) {
       this.users = this.users.filter((user) => user.id !== id);
-      const { password, ...rest } = deletedUser;
-      return rest;
+      return deletedUser;
     }
     return null;
   }

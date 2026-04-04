@@ -13,12 +13,9 @@ export interface IUser {
 export type IUserResponse = Omit<IUser, 'password'>;
 
 export interface IUsersStorage {
-  getUsers(): IUserResponse[];
-  getUserById(id: string): IUserResponse;
-  createUser(createUserDto: CreateUserDto): IUserResponse;
-  updateUser(
-    id: string,
-    updateUserDto: UpdateUserDto,
-  ): IUserResponse | { code: string; error: boolean; errorMessage: string };
-  removeUser(id: string): IUserResponse | null;
+  getUsers(): IUser[];
+  getUserById(id: string): IUser;
+  createUser(createUserDto: CreateUserDto): IUser;
+  updateUser(id: string, updateUserDto: UpdateUserDto): IUser;
+  removeUser(id: string): IUser | null;
 }

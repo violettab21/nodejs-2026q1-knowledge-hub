@@ -9,5 +9,6 @@ import { CategoriesStorage } from './storage/categories.storage';
     CategoriesService,
     { provide: 'ICategoriesStorage', useClass: CategoriesStorage },
   ],
+  exports: [CategoriesService],
 })
 export class CategoriesModule {}

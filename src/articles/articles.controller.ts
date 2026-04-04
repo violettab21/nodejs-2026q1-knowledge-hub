@@ -21,7 +21,16 @@ export class ArticlesController {
 
   @Post()
   create(@Body() createArticleDto: CreateArticleDto) {
-    return this.articlesService.create(createArticleDto);
+    const newArticle = this.articlesService.create(createArticleDto);
+    if (newArticle) {
+      return newArticle;
+    }
+    if ('message' in newArticle) {
+      throw new HttpException(
+        newArticle.message,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
   }
 
   @Get()

@@ -9,5 +9,6 @@ import { UsersStorage } from './storage/users.storage';
     UsersService,
     { provide: 'IUsersStorage', useClass: UsersStorage },
   ],
+  exports: [UsersService],
 })
 export class UsersModule {}

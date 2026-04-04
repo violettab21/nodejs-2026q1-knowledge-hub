@@ -1,4 +1,4 @@
-import { IsDefined, IsUUID } from 'class-validator';
+import { IsDefined, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateCommentDto {
   @IsDefined()
@@ -6,4 +6,7 @@ export class CreateCommentDto {
   @IsDefined()
   @IsUUID()
   articleId: string;
+  @IsOptional()
+  @IsUUID()
+  authorId: string | null;
 }

@@ -6,3 +6,9 @@ export interface ICommentsStorage {
   createComment(createCommentDto: CreateCommentDto): Comment;
   removeComment(id: string): Comment;
 }
+
+export interface IErrorResponse {
+  error: boolean;
+  message: string;
+  field?: string;
+}

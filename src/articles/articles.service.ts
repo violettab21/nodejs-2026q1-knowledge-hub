@@ -1,12 +1,43 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { IArticlesStorage } from './interfaces/articles.interface';
+import {
+  IArticlesStorage,
+  IErrorResponse,
+} from './interfaces/articles.interface';
+import { UsersService } from 'src/users/users.service';
+import { CategoriesService } from 'src/categories/categories.service';
+import { Article } from './entities/article.entity';
 
 @Injectable()
 export class ArticlesService {
-  constructor(@Inject('IArticlesStorage') private storage: IArticlesStorage) {}
-  create(createArticleDto: CreateArticleDto) {
+  constructor(
+    @Inject('IArticlesStorage') private storage: IArticlesStorage,
+    private readonly usersService: UsersService,
+    private readonly categoriesService: CategoriesService,
+  ) {}
+  create(createArticleDto: CreateArticleDto): Article | IErrorResponse {
+    const { authorId, categoryId } = createArticleDto;
+    if (authorId !== null) {
+      const user = this.usersService.findOne(authorId);
+      if (!user) {
+        return {
+          error: true,
+          message: "Provided authorId doesn't exist",
+          field: 'authorId',
+        };
+      }
+    }
+    if (categoryId !== null) {
+      const category = this.categoriesService.findOne(categoryId);
+      if (!category) {
+        return {
+          error: true,
+          message: "Provided categoryId doesn't exist",
+          field: 'categoryId',
+        };
+      }
+    }
     return this.storage.createArticle(createArticleDto);
   }
 

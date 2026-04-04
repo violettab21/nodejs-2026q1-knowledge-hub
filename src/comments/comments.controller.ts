@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentsParams, CommentsQueryParams } from './dto/comments-params.dto';
@@ -9,7 +19,16 @@ export class CommentsController {
 
   @Post()
   create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentsService.create(createCommentDto);
+    const newComment = this.commentsService.create(createCommentDto);
+    if (newComment) {
+      return newComment;
+    }
+    if ('message' in newComment) {
+      throw new HttpException(
+        newComment?.message,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
   }
 
   @Get()

@@ -1,29 +1,93 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { IUsersStorage } from './interfaces/users.interface';
+import { IUserResponse, IUsersStorage } from './interfaces/users.interface';
 
 @Injectable()
 export class UsersService {
   constructor(@Inject('IUsersStorage') private storage: IUsersStorage) {}
 
-  create(createUserDto: CreateUserDto) {
-    return this.storage.createUser(createUserDto);
+  create(createUserDto: CreateUserDto): IUserResponse {
+    const user = this.storage.createUser(createUserDto);
+    const { id, login, role, createdAt, updatedAt } = user;
+    return {
+      id,
+      login,
+      role,
+      createdAt,
+      updatedAt,
+    };
   }
 
   findAll() {
-    return this.storage.getUsers();
+    const users = this.storage.getUsers();
+
+    return users.map(({ id, login, role, createdAt, updatedAt }) => {
+      return {
+        id,
+        login,
+        role,
+        createdAt,
+        updatedAt,
+      };
+    });
   }
 
   findOne(id: string) {
-    return this.storage.getUserById(id);
+    const user = this.storage.getUserById(id);
+    if (user) {
+      const { id, login, role, createdAt, updatedAt } = user;
+      return {
+        id,
+        login,
+        role,
+        createdAt,
+        updatedAt,
+      };
+    }
+    return null;
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
-    return this.storage.updateUser(id, updateUserDto);
+    const user = this.storage.getUserById(id);
+    if (user) {
+      if (user.password === updateUserDto.oldPassword) {
+        const updatedUser = this.storage.updateUser(id, updateUserDto);
+        const { id: userId, login, role, createdAt, updatedAt } = updatedUser;
+        return {
+          id: userId,
+          login,
+          role,
+          createdAt,
+          updatedAt,
+        };
+      }
+      return {
+        error: true,
+        message: 'Old password is incorrect',
+        field: 'oldPassword',
+      };
+    }
+    return {
+      error: true,
+      message: 'User not found',
+      field: 'id',
+    };
   }
 
   remove(id: string) {
-    return this.storage.removeUser(id);
+    const user = this.storage.removeUser(id);
+
+    if (user) {
+      const { id: userId, login, role, createdAt, updatedAt } = user;
+      return {
+        id: userId,
+        login,
+        role,
+        createdAt,
+        updatedAt,
+      };
+    }
+    return null;
   }
 }

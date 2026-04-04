@@ -5,7 +5,6 @@ export class CommentsParams {
   id: string;
 }
 
-
 export class CommentsQueryParams {
   @IsUUID()
   articleId: string;

@@ -9,3 +9,9 @@ export interface IArticlesStorage {
   updateArticle(id: string, updateArticleDto: UpdateArticleDto): Article | null;
   removeArticle(id: string): Article | null;
 }
+
+export interface IErrorResponse {
+  error: boolean;
+  message: string;
+  field?: string;
+}

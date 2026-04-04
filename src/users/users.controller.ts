@@ -41,10 +41,10 @@ export class UsersController {
   update(@Param() params: UserParams, @Body() updateUserDto: UpdateUserDto) {
     const user = this.usersService.update(params.id, updateUserDto);
     if ('error' in user) {
-      if (user.code === 'password') {
-        throw new HttpException(user.errorMessage, HttpStatus.NOT_FOUND);
+      if (user.field === 'oldPassword') {
+        throw new HttpException(user.message, HttpStatus.FORBIDDEN);
       }
-      throw new HttpException(user.errorMessage, HttpStatus.NOT_FOUND);
+      throw new HttpException(user.message, HttpStatus.NOT_FOUND);
     }
 
     return user;
