@@ -30,14 +30,15 @@ export class CommentsController {
   @ApiResponse({ status: 400, description: 'Bad request.' })
   create(@Body() createCommentDto: CreateCommentDto) {
     const newComment = this.commentsService.create(createCommentDto);
-    if (newComment) {
-      return newComment;
-    }
+
     if ('message' in newComment) {
       throw new HttpException(
         newComment?.message,
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
+    }
+    if (newComment) {
+      return newComment;
     }
   }
 
@@ -48,6 +49,21 @@ export class CommentsController {
   })
   findAll(@Query() params: CommentsQueryParams) {
     return this.commentsService.findAll(params.articleId);
+  }
+
+  @Get(':id')
+  @ApiResponse({
+    status: 200,
+    type: Comment,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request.' })
+  @ApiResponse({ status: 404, description: 'Not Found.' })
+  findOne(@Param() params: CommentsParams) {
+    const comment = this.commentsService.findOne(params.id);
+    if (comment) {
+      return comment;
+    }
+    throw new HttpException('Not found', HttpStatus.NOT_FOUND);
   }
 
   @Delete(':id')

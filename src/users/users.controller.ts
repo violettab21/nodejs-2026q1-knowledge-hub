@@ -17,7 +17,6 @@ import { UserParams } from './dto/user-params.dto';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserResponse } from './entities/user.entity';
 
-
 @ApiTags('User')
 @Controller('user')
 export class UsersController {

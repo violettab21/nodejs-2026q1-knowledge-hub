@@ -7,7 +7,12 @@ import { writeFile } from 'node:fs/promises';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   const config = new DocumentBuilder()
     .setTitle('Knowledge Hub')
     .setDescription('The Knowledge Hub API description')

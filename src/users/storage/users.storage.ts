@@ -4,7 +4,6 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { randomUUID } from 'node:crypto';
 import { User } from '../entities/user.entity';
-import { UNSUPPORTED_MEDIA_TYPE } from 'http-status-codes';
 import { UserRole } from '../enums/roles.enum';
 
 @Injectable()
@@ -38,6 +37,7 @@ export class UsersStorage implements IUsersStorage {
     const updatedUser = this.getUserById(id);
     if (updatedUser) {
       updatedUser.password = updateUserDto.newPassword;
+      updatedUser.updatedAt = Date.now();
       return updatedUser;
     }
     return null;

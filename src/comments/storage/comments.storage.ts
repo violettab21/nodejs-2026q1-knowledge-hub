@@ -14,6 +14,10 @@ export class CommentsStorage implements ICommentsStorage {
     return this.comments;
   }
 
+  getCommentById(id: string) {
+    return this.comments.find((comment) => comment.id === id);
+  }
+
   createComment(createCommentDto: CreateCommentDto) {
     const newComment: Comment = {
       id: randomUUID(),

@@ -15,12 +15,14 @@ export class CreateArticleDto {
     required: true,
   })
   @IsDefined()
+  @IsString()
   title: string;
   @ApiProperty({
     type: String,
     required: true,
   })
   @IsDefined()
+  @IsString()
   content: string;
   @ApiProperty({
     type: String,

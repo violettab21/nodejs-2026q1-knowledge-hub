@@ -140,6 +140,26 @@ paths:
                   $ref: '#/components/schemas/Comment'
       tags: *ref_1
   /comment/{id}:
+    get:
+      operationId: CommentsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Bad request.
+        '404':
+          description: Not Found.
+      tags: *ref_1
     delete:
       operationId: CommentsController_remove
       parameters:
@@ -563,6 +583,9 @@ components:
           type: array
           items:
             type: string
+      required:
+        - title
+        - content
     CreateCategoryDto:
       type: object
       properties:
@@ -593,3 +616,6 @@ components:
           type: string
         description:
           type: string
+      required:
+        - name
+        - description

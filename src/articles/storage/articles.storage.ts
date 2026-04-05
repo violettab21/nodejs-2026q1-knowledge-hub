@@ -25,7 +25,6 @@ export class ArticlesStorage implements IArticlesStorage {
   }
 
   createArticle(createArticleDto: CreateArticleDto) {
-    //TODO validate userId and categoryID is records exist
     const { status, authorId, categoryId, tags, ...rest } = createArticleDto;
     const newArticle: Article = {
       id: randomUUID(),
@@ -42,14 +41,16 @@ export class ArticlesStorage implements IArticlesStorage {
   }
 
   updateArticle(id: string, updateArticleDto: UpdateArticleDto) {
-    //TODO validate userId and categoryID if records exist
     const updatedArticle = this.articles.find((article) => article.id === id);
-
+    const replaceWith = {
+      ...updateArticleDto,
+      authorId: updateArticleDto.authorId || null,
+      categoryId: updateArticleDto.categoryId || null,
+      tags: updateArticleDto.tags || [],
+      updatedAt: Date.now(),
+    };
     if (updatedArticle) {
-      Object.assign(updatedArticle, {
-        ...updateArticleDto,
-        updatedAt: Date.now(),
-      });
+      Object.assign(updatedArticle, replaceWith);
 
       return updatedArticle;
     }

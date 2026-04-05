@@ -39,9 +39,8 @@ export class CategoriesStorage implements ICategoriesStorage {
       (category) => category.id === id,
     );
     if (updatedCategory) {
-      updatedCategory.name = updateCategoryDto.name || updatedCategory.name;
-      updatedCategory.description =
-        updateCategoryDto.description || updatedCategory.description;
+      updatedCategory.name = updateCategoryDto.name;
+      updatedCategory.description = updateCategoryDto.description;
       return updatedCategory;
     }
     return null;

@@ -25,7 +25,7 @@ export class ArticlesService {
   ) {}
   create(createArticleDto: CreateArticleDto): Article | IErrorResponse {
     const { authorId, categoryId } = createArticleDto;
-    if (authorId !== null) {
+    if (authorId) {
       const user = this.usersService.findOne(authorId);
       if (!user) {
         return {
@@ -35,7 +35,7 @@ export class ArticlesService {
         };
       }
     }
-    if (categoryId !== null) {
+    if (categoryId) {
       const category = this.categoriesService.findOne(categoryId);
       if (!category) {
         return {
@@ -73,6 +73,28 @@ export class ArticlesService {
   }
 
   update(id: string, updateArticleDto: UpdateArticleDto) {
+    const { authorId, categoryId } = updateArticleDto;
+    if (authorId) {
+      const user = this.usersService.findOne(authorId);
+      if (!user) {
+        return {
+          error: true,
+          message: "Provided authorId doesn't exist",
+          field: 'authorId',
+        };
+      }
+    }
+    if (categoryId) {
+      const category = this.categoriesService.findOne(categoryId);
+      if (!category) {
+        return {
+          error: true,
+          message: "Provided categoryId doesn't exist",
+          field: 'categoryId',
+        };
+      }
+    }
+
     return this.storage.updateArticle(id, updateArticleDto);
   }
 

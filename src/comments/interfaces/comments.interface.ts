@@ -5,6 +5,7 @@ export interface ICommentsStorage {
   getComments(): Comment[];
   createComment(createCommentDto: CreateCommentDto): Comment;
   removeComment(id: string): Comment;
+  getCommentById(id: string): Comment;
 }
 
 export interface IErrorResponse {

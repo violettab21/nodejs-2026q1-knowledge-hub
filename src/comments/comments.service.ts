@@ -45,6 +45,14 @@ export class CommentsService {
     return comments.filter((comment) => comment.articleId === articleId);
   }
 
+  findOne(id: string) {
+    const comment = this.storage.getCommentById(id);
+    if (comment) {
+      return comment;
+    }
+    return null;
+  }
+
   remove(id: string) {
     return this.storage.removeComment(id);
   }

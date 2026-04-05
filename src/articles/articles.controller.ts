@@ -34,14 +34,15 @@ export class ArticlesController {
   @ApiResponse({ status: 422, description: 'Unprocessed entity.' })
   create(@Body() createArticleDto: CreateArticleDto) {
     const newArticle = this.articlesService.create(createArticleDto);
-    if (newArticle) {
-      return newArticle;
-    }
+
     if ('message' in newArticle) {
       throw new HttpException(
         newArticle.message,
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
+    }
+    if (newArticle) {
+      return newArticle;
     }
   }
 
@@ -90,8 +91,15 @@ export class ArticlesController {
       updateArticleDto,
     );
     if (updatedArticle) {
+      if ('message' in updatedArticle) {
+        throw new HttpException(
+          updatedArticle.message,
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
       return updatedArticle;
     }
+    throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
   }
 
   @Delete(':id')
