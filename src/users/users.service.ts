@@ -5,6 +5,7 @@ import { IUsersStorage } from './interfaces/users.interface';
 import { CommentsService } from 'src/comments/comments.service';
 import { ArticlesService } from 'src/articles/articles.service';
 import { UserResponse } from './entities/user.entity';
+import { getPaginationData } from 'src/helpers/pagination/pagination';
 
 @Injectable()
 export class UsersService {
@@ -28,18 +29,23 @@ export class UsersService {
     };
   }
 
-  findAll() {
+  findAll(page?: number, limit?: number) {
     const users = this.storage.getUsers();
-
-    return users.map(({ id, login, role, createdAt, updatedAt }) => {
-      return {
-        id,
-        login,
-        role,
-        createdAt,
-        updatedAt,
-      };
-    });
+    const usersWithoutPass = users.map(
+      ({ id, login, role, createdAt, updatedAt }) => {
+        return {
+          id,
+          login,
+          role,
+          createdAt,
+          updatedAt,
+        };
+      },
+    );
+    if (page && limit) {
+      return getPaginationData(+page, +limit, usersWithoutPass);
+    }
+    return usersWithoutPass;
   }
 
   findOne(id: string) {

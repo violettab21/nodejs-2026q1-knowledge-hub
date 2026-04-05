@@ -7,6 +7,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                type: string
   /user:
     post:
       operationId: UsersController_create
@@ -30,7 +34,17 @@ paths:
         - User
     get:
       operationId: UsersController_findAll
-      parameters: []
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: number
       responses:
         '200':
           description: ''
@@ -129,6 +143,16 @@ paths:
           in: query
           schema:
             type: string
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            type: number
       responses:
         '200':
           description: ''
@@ -201,20 +225,34 @@ paths:
       operationId: ArticlesController_findAll
       parameters:
         - name: status
-          required: true
+          required: false
           in: query
           schema:
+            enum:
+              - draft
+              - published
+              - archived
             type: string
         - name: categoryId
-          required: true
+          required: false
           in: query
           schema:
             type: string
         - name: tag
-          required: true
+          required: false
           in: query
           schema:
             type: string
+        - name: page
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: number
       responses:
         '200':
           description: ''
@@ -317,7 +355,17 @@ paths:
         - Category
     get:
       operationId: CategoriesController_findAll
-      parameters: []
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: number
       responses:
         '200':
           description: ''

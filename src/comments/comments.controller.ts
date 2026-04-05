@@ -48,7 +48,11 @@ export class CommentsController {
     type: [Comment],
   })
   findAll(@Query() params: CommentsQueryParams) {
-    return this.commentsService.findAll(params.articleId);
+    return this.commentsService.findAll(
+      params.articleId,
+      params.page,
+      params.limit,
+    );
   }
 
   @Get(':id')

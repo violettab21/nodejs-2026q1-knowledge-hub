@@ -10,6 +10,7 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { Article } from './entities/article.entity';
 import { CommentsService } from 'src/comments/comments.service';
 import { ArticleStatus } from './enums/article.enum';
+import { getPaginationData } from 'src/helpers/pagination/pagination';
 
 @Injectable()
 export class ArticlesService {
@@ -48,10 +49,17 @@ export class ArticlesService {
     return this.storage.createArticle(createArticleDto);
   }
 
-  findAll(status?: ArticleStatus, categoryId?: string, tag?: string) {
+  findAll(
+    status?: ArticleStatus,
+    categoryId?: string,
+    tag?: string,
+    page?: number,
+    limit?: number,
+  ) {
     const articles = this.storage.getArticles();
+    let data = articles;
     if (status || categoryId || tag) {
-      return articles.filter((article) => {
+      data = articles.filter((article) => {
         return (
           (status ? article.status === status : true) &&
           (categoryId ? article.categoryId === categoryId : true) &&
@@ -59,7 +67,11 @@ export class ArticlesService {
         );
       });
     }
-    return articles;
+    if (page && limit) {
+      return getPaginationData(+page, +limit, data);
+    }
+
+    return data;
   }
 
   findOne(id: string) {

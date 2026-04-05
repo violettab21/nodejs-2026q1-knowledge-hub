@@ -9,11 +9,12 @@ import {
   HttpException,
   HttpStatus,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserParams } from './dto/user-params.dto';
+import { UserParams, UsersQueryParams } from './dto/user-params.dto';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserResponse } from './entities/user.entity';
 
@@ -38,8 +39,8 @@ export class UsersController {
     status: 200,
     type: [UserResponse],
   })
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() params?: UsersQueryParams) {
+    return this.usersService.findAll(params.page, params.limit);
   }
 
   @Get(':id')

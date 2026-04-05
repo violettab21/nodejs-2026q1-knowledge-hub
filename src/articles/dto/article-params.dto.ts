@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsUUID, Min } from 'class-validator';
+import { ArticleStatus } from '../enums/article.enum';
 
 export class ArticleParams {
   @ApiProperty({
@@ -8,4 +10,46 @@ export class ArticleParams {
   })
   @IsUUID()
   id: string;
+}
+
+export class ArticleQueryParams {
+  @ApiProperty({
+    type: String,
+    enum: ['draft', 'published', 'archived'],
+    required: false,
+  })
+  @IsOptional()
+  status?: ArticleStatus;
+  @ApiProperty({
+    type: String,
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID()
+  categoryId?: string;
+  @ApiProperty({
+    type: String,
+    required: false,
+  })
+  @IsOptional()
+  tag?: string;
+
+  @ApiProperty({
+    type: Number,
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+  @ApiProperty({
+    type: Number,
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  limit?: number;
 }

@@ -9,11 +9,12 @@ import {
   HttpStatus,
   Put,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { CategoryParams } from './dto/category-params.dto';
+import { CategoryParams, CategoryQueryParams } from './dto/category-params.dto';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Category } from './entities/category.entity';
 
@@ -38,8 +39,8 @@ export class CategoriesController {
     status: 200,
     type: [Category],
   })
-  findAll() {
-    return this.categoriesService.findAll();
+  findAll(@Query() params: CategoryQueryParams) {
+    return this.categoriesService.findAll(params.page, params.limit);
   }
 
   @Get(':id')

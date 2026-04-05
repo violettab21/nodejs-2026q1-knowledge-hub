@@ -14,10 +14,9 @@ import {
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { ArticleParams } from './dto/article-params.dto';
+import { ArticleParams, ArticleQueryParams } from './dto/article-params.dto';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Article } from './entities/article.entity';
-import { ArticleStatus } from './enums/article.enum';
 
 @ApiTags('Article')
 @Controller('article')
@@ -51,12 +50,9 @@ export class ArticlesController {
     status: 200,
     type: [Article],
   })
-  findAll(
-    @Query('status') status?: ArticleStatus,
-    @Query('categoryId') categoryId?: string,
-    @Query('tag') tag?: string,
-  ) {
-    return this.articlesService.findAll(status, categoryId, tag);
+  findAll(@Query() params?: ArticleQueryParams) {
+    const { status, categoryId, tag, page, limit } = params;
+    return this.articlesService.findAll(status, categoryId, tag, page, limit);
   }
 
   @Get(':id')

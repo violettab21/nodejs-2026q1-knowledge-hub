@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsUUID, Min } from 'class-validator';
 
 export class CommentsParams {
   @ApiProperty({
@@ -17,4 +18,14 @@ export class CommentsQueryParams {
   })
   @IsUUID()
   articleId: string;
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  limit?: number;
 }
