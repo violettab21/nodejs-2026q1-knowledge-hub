@@ -9,6 +9,7 @@ import { UsersService } from 'src/users/users.service';
 import { CategoriesService } from 'src/categories/categories.service';
 import { Article } from './entities/article.entity';
 import { CommentsService } from 'src/comments/comments.service';
+import { ArticleStatus } from './enums/article.enum';
 
 @Injectable()
 export class ArticlesService {
@@ -47,11 +48,7 @@ export class ArticlesService {
     return this.storage.createArticle(createArticleDto);
   }
 
-  findAll(
-    status?: 'draft' | 'published' | 'archived',
-    categoryId?: string,
-    tag?: string,
-  ) {
+  findAll(status?: ArticleStatus, categoryId?: string, tag?: string) {
     const articles = this.storage.getArticles();
     if (status || categoryId || tag) {
       return articles.filter((article) => {

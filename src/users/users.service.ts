@@ -1,9 +1,10 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { IUserResponse, IUsersStorage } from './interfaces/users.interface';
+import { IUsersStorage } from './interfaces/users.interface';
 import { CommentsService } from 'src/comments/comments.service';
 import { ArticlesService } from 'src/articles/articles.service';
+import { UserResponse } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,7 @@ export class UsersService {
     private readonly articlesService: ArticlesService,
   ) {}
 
-  create(createUserDto: CreateUserDto): IUserResponse {
+  create(createUserDto: CreateUserDto): UserResponse {
     const user = this.storage.createUser(createUserDto);
     const { id, login, role, createdAt, updatedAt } = user;
     return {

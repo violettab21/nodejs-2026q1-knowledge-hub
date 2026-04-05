@@ -1,12 +1,31 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsDefined, IsIn, IsOptional } from 'class-validator';
+import { UserRole } from '../enums/roles.enum';
 
 export class CreateUserDto {
+  @ApiProperty({
+    description: 'User login',
+    example: 'user1',
+    type: String,
+    required: true,
+  })
   @IsDefined()
   login: string;
+  @ApiProperty({
+    description: 'User password',
+    example: '123456',
+    type: String,
+    required: true,
+  })
   @IsDefined()
   password: string;
-  @IsDefined()
-  @IsIn(['admin', 'editor', 'viewer'])
+  @ApiProperty({
+    description: 'User role',
+    example: 'admin',
+    enum: ['admin', 'editor', 'viewer'],
+    required: false,
+  })
   @IsOptional()
-  role?: 'admin' | 'editor' | 'viewer';
+  @IsIn(['admin', 'editor', 'viewer'])
+  role?: UserRole;
 }

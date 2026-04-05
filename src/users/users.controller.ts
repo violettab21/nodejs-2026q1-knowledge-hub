@@ -8,27 +8,48 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserParams } from './dto/user-params.dto';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserResponse } from './entities/user.entity';
 
+
+@ApiTags('User')
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({
+    status: 201,
+    type: UserResponse,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request.' })
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
+  @ApiResponse({
+    status: 200,
+    type: [UserResponse],
+  })
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
+  @ApiResponse({
+    status: 200,
+    type: UserResponse,
+  })
+  @ApiResponse({ status: 404, description: 'Not found.' })
+  @ApiResponse({ status: 400, description: 'Bad request.' })
   findOne(@Param() params: UserParams) {
     const user = this.usersService.findOne(params.id);
     if (user) {
@@ -38,6 +59,12 @@ export class UsersController {
   }
 
   @Put(':id')
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({
+    status: 200,
+    type: UserResponse,
+  })
+  @ApiResponse({ status: 404, description: 'Not found.' })
   update(@Param() params: UserParams, @Body() updateUserDto: UpdateUserDto) {
     const user = this.usersService.update(params.id, updateUserDto);
     if ('error' in user) {
@@ -51,6 +78,11 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
+  @ApiResponse({
+    status: 204,
+  })
+  @ApiResponse({ status: 404, description: 'Not found.' })
   remove(@Param() params: UserParams) {
     const user = this.usersService.remove(params.id);
     if (user) {

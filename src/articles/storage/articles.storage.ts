@@ -4,6 +4,7 @@ import { Article } from '../entities/article.entity';
 import { UpdateArticleDto } from '../dto/update-article.dto';
 import { Injectable } from '@nestjs/common';
 import { IArticlesStorage } from '../interfaces/articles.interface';
+import { ArticleStatus } from '../enums/article.enum';
 
 @Injectable()
 export class ArticlesStorage implements IArticlesStorage {
@@ -29,7 +30,7 @@ export class ArticlesStorage implements IArticlesStorage {
     const newArticle: Article = {
       id: randomUUID(),
       ...rest,
-      status: status || 'draft',
+      status: status || ArticleStatus.Draft,
       authorId: authorId || null,
       categoryId: categoryId || null,
       tags: tags || [],

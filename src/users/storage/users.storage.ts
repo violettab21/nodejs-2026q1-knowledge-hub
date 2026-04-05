@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { IUser, IUsersStorage } from '../interfaces/users.interface';
+import { IUsersStorage } from '../interfaces/users.interface';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { randomUUID } from 'node:crypto';
+import { User } from '../entities/user.entity';
+import { UNSUPPORTED_MEDIA_TYPE } from 'http-status-codes';
+import { UserRole } from '../enums/roles.enum';
 
 @Injectable()
 export class UsersStorage implements IUsersStorage {
-  private users: IUser[] = [];
+  private users: User[] = [];
 
   constructor() {}
 
@@ -20,10 +23,10 @@ export class UsersStorage implements IUsersStorage {
 
   createUser(createUserDto: CreateUserDto) {
     const { role, ...props } = createUserDto;
-    const newUser: IUser = {
+    const newUser: User = {
       id: randomUUID(),
       ...props,
-      role: role || 'viewer',
+      role: role || UserRole.Viewer,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };

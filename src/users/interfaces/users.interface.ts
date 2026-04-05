@@ -1,21 +1,11 @@
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
-
-export interface IUser {
-  id: string;
-  login: string;
-  password: string;
-  role?: 'admin' | 'editor' | 'viewer';
-  createdAt: number;
-  updatedAt: number;
-}
-
-export type IUserResponse = Omit<IUser, 'password'>;
+import { User } from '../entities/user.entity';
 
 export interface IUsersStorage {
-  getUsers(): IUser[];
-  getUserById(id: string): IUser;
-  createUser(createUserDto: CreateUserDto): IUser;
-  updateUser(id: string, updateUserDto: UpdateUserDto): IUser;
-  removeUser(id: string): IUser | null;
+  getUsers(): User[];
+  getUserById(id: string): User;
+  createUser(createUserDto: CreateUserDto): User;
+  updateUser(id: string, updateUserDto: UpdateUserDto): User;
+  removeUser(id: string): User | null;
 }
