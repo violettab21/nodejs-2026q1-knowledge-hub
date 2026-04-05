@@ -12,6 +12,7 @@ import { CommentsService } from 'src/comments/comments.service';
 import { ArticleStatus } from './enums/article.enum';
 import { getPaginationData } from 'src/helpers/pagination/pagination';
 import { sortData } from 'src/helpers/sorting/sorting';
+import { AUTHOR_NOT_EXIST, CATEGORY_NOT_EXIST } from 'src/constants/constants';
 
 @Injectable()
 export class ArticlesService {
@@ -32,7 +33,7 @@ export class ArticlesService {
       if (!user) {
         return {
           error: true,
-          message: "Provided authorId doesn't exist",
+          message: AUTHOR_NOT_EXIST,
           field: 'authorId',
         };
       }
@@ -42,7 +43,7 @@ export class ArticlesService {
       if (!category) {
         return {
           error: true,
-          message: "Provided categoryId doesn't exist",
+          message: CATEGORY_NOT_EXIST,
           field: 'categoryId',
         };
       }
@@ -98,7 +99,7 @@ export class ArticlesService {
       if (!user) {
         return {
           error: true,
-          message: "Provided authorId doesn't exist",
+          message: AUTHOR_NOT_EXIST,
           field: 'authorId',
         };
       }
@@ -108,7 +109,7 @@ export class ArticlesService {
       if (!category) {
         return {
           error: true,
-          message: "Provided categoryId doesn't exist",
+          message: CATEGORY_NOT_EXIST,
           field: 'categoryId',
         };
       }

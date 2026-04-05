@@ -30,6 +30,4 @@ export class CreateUserDto {
   @IsOptional()
   @IsIn(['admin', 'editor', 'viewer'])
   role?: UserRole;
-
-
 }

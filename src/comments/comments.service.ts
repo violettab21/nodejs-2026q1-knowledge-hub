@@ -9,6 +9,7 @@ import { UsersService } from 'src/users/users.service';
 import { Comment } from './entities/comment.entity';
 import { getPaginationData } from 'src/helpers/pagination/pagination';
 import { sortData } from 'src/helpers/sorting/sorting';
+import { ARTICLE_NOT_EXIST, AUTHOR_NOT_EXIST } from 'src/constants/constants';
 
 @Injectable()
 export class CommentsService {
@@ -25,7 +26,7 @@ export class CommentsService {
     if (!article) {
       return {
         error: true,
-        message: 'Non-existing article id',
+        message: ARTICLE_NOT_EXIST,
         field: 'articleId',
       };
     }
@@ -34,7 +35,7 @@ export class CommentsService {
       if (!author) {
         return {
           error: true,
-          message: 'Non-existing author id',
+          message: AUTHOR_NOT_EXIST,
           field: 'authorId',
         };
       }

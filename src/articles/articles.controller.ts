@@ -17,6 +17,11 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleParams, ArticleQueryParams } from './dto/article-params.dto';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Article } from './entities/article.entity';
+import {
+  BAD_REQUEST_MESSAGE,
+  NOT_FOUND_MESSAGE,
+  UNPROCESSED_MESSAGE,
+} from 'src/constants/constants';
 
 @ApiTags('Article')
 @Controller('article')
@@ -29,8 +34,8 @@ export class ArticlesController {
     status: 201,
     type: Article,
   })
-  @ApiResponse({ status: 400, description: 'Bad request.' })
-  @ApiResponse({ status: 422, description: 'Unprocessed entity.' })
+  @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
+  @ApiResponse({ status: 422, description: UNPROCESSED_MESSAGE })
   create(@Body() createArticleDto: CreateArticleDto) {
     const newArticle = this.articlesService.create(createArticleDto);
 
@@ -50,6 +55,7 @@ export class ArticlesController {
     status: 200,
     type: [Article],
   })
+  @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   findAll(@Query() params?: ArticleQueryParams) {
     const { status, categoryId, tag, page, limit, sortBy, order } = params;
     return this.articlesService.findAll(
@@ -68,24 +74,25 @@ export class ArticlesController {
     status: 200,
     type: Article,
   })
-  @ApiResponse({ status: 404, description: 'Not Found.' })
-  @ApiResponse({ status: 400, description: 'Bad request.' })
+  @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
+  @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   findOne(@Param() params: ArticleParams) {
     const article = this.articlesService.findOne(params.id);
     if (article) {
       return article;
     }
-    throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
   }
 
   @Put(':id')
   @ApiBody({ type: UpdateArticleDto })
   @ApiResponse({
-    status: 201,
+    status: 200,
     type: Article,
   })
-  @ApiResponse({ status: 400, description: 'Bad request.' })
-  @ApiResponse({ status: 404, description: 'Not found.' })
+  @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
+  @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
+  @ApiResponse({ status: 422, description: UNPROCESSED_MESSAGE })
   update(
     @Param() params: ArticleParams,
     @Body() updateArticleDto: UpdateArticleDto,
@@ -103,7 +110,7 @@ export class ArticlesController {
       }
       return updatedArticle;
     }
-    throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
   }
 
   @Delete(':id')
@@ -111,12 +118,12 @@ export class ArticlesController {
   @ApiResponse({
     status: 204,
   })
-  @ApiResponse({ status: 404, description: 'Not found.' })
-  @ApiResponse({ status: 400, description: 'Bad request.' })
+  @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
+  @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   remove(@Param() params: ArticleParams) {
     const deletedArticle = this.articlesService.remove(params.id);
     if (!deletedArticle) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+      throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
     }
     return deletedArticle;
   }

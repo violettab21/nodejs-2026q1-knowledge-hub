@@ -17,6 +17,10 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryParams, CategoryQueryParams } from './dto/category-params.dto';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Category } from './entities/category.entity';
+import {
+  BAD_REQUEST_MESSAGE,
+  NOT_FOUND_MESSAGE,
+} from 'src/constants/constants';
 
 @ApiTags('Category')
 @Controller('category')
@@ -29,7 +33,7 @@ export class CategoriesController {
     status: 201,
     type: Category,
   })
-  @ApiResponse({ status: 400, description: 'Bad request.' })
+  @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
@@ -39,6 +43,7 @@ export class CategoriesController {
     status: 200,
     type: [Category],
   })
+  @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   findAll(@Query() params: CategoryQueryParams) {
     const { page, limit, sortBy, order } = params;
     return this.categoriesService.findAll(page, limit, sortBy, order);
@@ -49,14 +54,14 @@ export class CategoriesController {
     status: 200,
     type: Category,
   })
-  @ApiResponse({ status: 400, description: 'Bad request.' })
-  @ApiResponse({ status: 404, description: 'Not found.' })
+  @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
+  @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   findOne(@Param() params: CategoryParams) {
     const category = this.categoriesService.findOne(params.id);
     if (category) {
       return category;
     }
-    throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
   }
 
   @Put(':id')
@@ -65,8 +70,8 @@ export class CategoriesController {
     status: 200,
     type: Category,
   })
-  @ApiResponse({ status: 400, description: 'Bad request.' })
-  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
+  @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   update(
     @Param() params: CategoryParams,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -78,7 +83,7 @@ export class CategoriesController {
     if (category) {
       return category;
     }
-    throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
   }
 
   @Delete(':id')
@@ -86,13 +91,13 @@ export class CategoriesController {
   @ApiResponse({
     status: 204,
   })
-  @ApiResponse({ status: 400, description: 'Bad request.' })
-  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
+  @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   remove(@Param() params: CategoryParams) {
     const category = this.categoriesService.remove(params.id);
     if (category) {
       return category;
     }
-    throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
   }
 }

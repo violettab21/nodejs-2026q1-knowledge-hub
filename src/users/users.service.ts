@@ -7,6 +7,7 @@ import { ArticlesService } from 'src/articles/articles.service';
 import { UserResponse } from './entities/user.entity';
 import { getPaginationData } from 'src/helpers/pagination/pagination';
 import { sortData } from 'src/helpers/sorting/sorting';
+import { PASSWORD_INCORRECT, USER_NOT_FOUND } from './constants/constants';
 
 @Injectable()
 export class UsersService {
@@ -89,13 +90,13 @@ export class UsersService {
       }
       return {
         error: true,
-        message: 'Old password is incorrect',
+        message: PASSWORD_INCORRECT,
         field: 'oldPassword',
       };
     }
     return {
       error: true,
-      message: 'User not found',
+      message: USER_NOT_FOUND,
       field: 'id',
     };
   }
