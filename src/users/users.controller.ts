@@ -40,7 +40,8 @@ export class UsersController {
     type: [UserResponse],
   })
   findAll(@Query() params?: UsersQueryParams) {
-    return this.usersService.findAll(params.page, params.limit);
+    const { page, limit, sortBy, order } = params;
+    return this.usersService.findAll(page, limit, sortBy, order);
   }
 
   @Get(':id')

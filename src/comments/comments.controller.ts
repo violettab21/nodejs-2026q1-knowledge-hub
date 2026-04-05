@@ -48,11 +48,8 @@ export class CommentsController {
     type: [Comment],
   })
   findAll(@Query() params: CommentsQueryParams) {
-    return this.commentsService.findAll(
-      params.articleId,
-      params.page,
-      params.limit,
-    );
+    const { articleId, page, limit, sortBy, order } = params;
+    return this.commentsService.findAll(articleId, page, limit, sortBy, order);
   }
 
   @Get(':id')

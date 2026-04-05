@@ -11,6 +11,7 @@ import { Article } from './entities/article.entity';
 import { CommentsService } from 'src/comments/comments.service';
 import { ArticleStatus } from './enums/article.enum';
 import { getPaginationData } from 'src/helpers/pagination/pagination';
+import { sortData } from 'src/helpers/sorting/sorting';
 
 @Injectable()
 export class ArticlesService {
@@ -55,6 +56,8 @@ export class ArticlesService {
     tag?: string,
     page?: number,
     limit?: number,
+    sortBy?: string,
+    order?: 'asc' | 'desc',
   ) {
     const articles = this.storage.getArticles();
     let data = articles;
@@ -66,6 +69,10 @@ export class ArticlesService {
           (tag ? article.tags.includes(tag) : true)
         );
       });
+    }
+
+    if (sortBy && order) {
+      data = sortData(sortBy, order, data);
     }
     if (page && limit) {
       return getPaginationData(+page, +limit, data);

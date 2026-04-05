@@ -8,6 +8,7 @@ import { ArticlesService } from 'src/articles/articles.service';
 import { UsersService } from 'src/users/users.service';
 import { Comment } from './entities/comment.entity';
 import { getPaginationData } from 'src/helpers/pagination/pagination';
+import { sortData } from 'src/helpers/sorting/sorting';
 
 @Injectable()
 export class CommentsService {
@@ -41,12 +42,22 @@ export class CommentsService {
     return this.storage.createComment(createCommentDto);
   }
 
-  findAll(articleId: string, page: number, limit: number) {
+  findAll(
+    articleId: string,
+    page?: number,
+    limit?: number,
+    sortBy?: string,
+    order?: 'asc' | 'desc',
+  ) {
     const comments = this.storage.getComments();
+    let data = comments.filter((comment) => comment.articleId === articleId);
+    if (sortBy && order) {
+      data = sortData(sortBy, order, data);
+    }
     if (page && limit) {
       return getPaginationData(+page, +limit, comments);
     }
-    return comments.filter((comment) => comment.articleId === articleId);
+    return data;
   }
 
   findOne(id: string) {

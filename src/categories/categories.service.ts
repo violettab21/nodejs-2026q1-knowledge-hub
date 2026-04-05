@@ -4,6 +4,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ICategoriesStorage } from './interfaces/categories.interface';
 import { ArticlesService } from 'src/articles/articles.service';
 import { getPaginationData } from 'src/helpers/pagination/pagination';
+import { sortData } from 'src/helpers/sorting/sorting';
 
 @Injectable()
 export class CategoriesService {
@@ -16,13 +17,23 @@ export class CategoriesService {
     return this.storage.createCategory(createCategoryDto);
   }
 
-  findAll(page: number, limit: number) {
+  findAll(
+    page?: number,
+    limit?: number,
+    sortBy?: string,
+    order?: 'asc' | 'desc',
+  ) {
     const categories = this.storage.getCategories();
-    if (page && limit) {
-      return getPaginationData(+page, +limit, categories);
+    let data = categories;
+    if (sortBy && order) {
+      data = sortData(sortBy, order, data);
     }
 
-    return categories;
+    if (page && limit) {
+      return getPaginationData(+page, +limit, data);
+    }
+
+    return data;
   }
 
   findOne(id: string) {

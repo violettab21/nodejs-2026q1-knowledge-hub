@@ -39,12 +39,27 @@ paths:
           required: false
           in: query
           schema:
+            minimum: 1
             type: number
         - name: limit
           required: false
           in: query
           schema:
+            minimum: 1
             type: number
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: order
+          required: false
+          in: query
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
       responses:
         '200':
           description: ''
@@ -144,14 +159,16 @@ paths:
           schema:
             type: string
         - name: page
-          required: true
+          required: false
           in: query
           schema:
+            minimum: 1
             type: number
         - name: limit
-          required: true
+          required: false
           in: query
           schema:
+            minimum: 1
             type: number
       responses:
         '200':
@@ -247,12 +264,27 @@ paths:
           required: false
           in: query
           schema:
+            minimum: 1
             type: number
         - name: limit
           required: false
           in: query
           schema:
+            minimum: 1
             type: number
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: order
+          required: false
+          in: query
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
       responses:
         '200':
           description: ''
@@ -360,11 +392,13 @@ paths:
           required: false
           in: query
           schema:
+            minimum: 1
             type: number
         - name: limit
           required: false
           in: query
           schema:
+            minimum: 1
             type: number
       responses:
         '200':

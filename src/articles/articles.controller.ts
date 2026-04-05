@@ -51,8 +51,16 @@ export class ArticlesController {
     type: [Article],
   })
   findAll(@Query() params?: ArticleQueryParams) {
-    const { status, categoryId, tag, page, limit } = params;
-    return this.articlesService.findAll(status, categoryId, tag, page, limit);
+    const { status, categoryId, tag, page, limit, sortBy, order } = params;
+    return this.articlesService.findAll(
+      status,
+      categoryId,
+      tag,
+      page,
+      limit,
+      sortBy,
+      order,
+    );
   }
 
   @Get(':id')

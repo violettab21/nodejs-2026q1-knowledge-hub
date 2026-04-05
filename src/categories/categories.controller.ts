@@ -40,7 +40,8 @@ export class CategoriesController {
     type: [Category],
   })
   findAll(@Query() params: CategoryQueryParams) {
-    return this.categoriesService.findAll(params.page, params.limit);
+    const { page, limit, sortBy, order } = params;
+    return this.categoriesService.findAll(page, limit, sortBy, order);
   }
 
   @Get(':id')

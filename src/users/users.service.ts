@@ -6,6 +6,7 @@ import { CommentsService } from 'src/comments/comments.service';
 import { ArticlesService } from 'src/articles/articles.service';
 import { UserResponse } from './entities/user.entity';
 import { getPaginationData } from 'src/helpers/pagination/pagination';
+import { sortData } from 'src/helpers/sorting/sorting';
 
 @Injectable()
 export class UsersService {
@@ -29,9 +30,14 @@ export class UsersService {
     };
   }
 
-  findAll(page?: number, limit?: number) {
+  findAll(
+    page?: number,
+    limit?: number,
+    sortBy?: string,
+    order?: 'asc' | 'desc',
+  ) {
     const users = this.storage.getUsers();
-    const usersWithoutPass = users.map(
+    let usersWithoutPass = users.map(
       ({ id, login, role, createdAt, updatedAt }) => {
         return {
           id,
@@ -42,6 +48,10 @@ export class UsersService {
         };
       },
     );
+    if (sortBy && order) {
+      usersWithoutPass = sortData(sortBy, order, usersWithoutPass);
+    }
+
     if (page && limit) {
       return getPaginationData(+page, +limit, usersWithoutPass);
     }
