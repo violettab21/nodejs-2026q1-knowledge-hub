@@ -7,7 +7,18 @@ import { ICategoriesStorage } from '../interfaces/categories.interface';
 
 @Injectable()
 export class CategoriesStorage implements ICategoriesStorage {
-  private categories: Category[] = [];
+  private categories: Category[] = [
+    {
+      id: 'f8123359-86ca-428d-9fab-b6b3627a4583',
+      name: 'health',
+      description: 'Some test description',
+    },
+    {
+      id: '5f92a2a3-2d23-4020-a16d-42916890a3a2',
+      name: 'beauty',
+      description: 'Some test description',
+    },
+  ];
 
   constructor() {}
 

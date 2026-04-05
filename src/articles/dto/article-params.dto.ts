@@ -9,6 +9,7 @@ import {
   Min,
 } from 'class-validator';
 import { ArticleStatus } from '../enums/article.enum';
+import { sortBy } from '../constants/constants';
 
 export class ArticleParams {
   @ApiProperty({
@@ -62,6 +63,7 @@ export class ArticleQueryParams {
 
   @IsOptional()
   @IsString()
+  @IsIn(sortBy)
   sortBy?: string;
 
   @IsOptional()

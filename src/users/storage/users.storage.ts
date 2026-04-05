@@ -8,7 +8,48 @@ import { UserRole } from '../enums/roles.enum';
 
 @Injectable()
 export class UsersStorage implements IUsersStorage {
-  private users: User[] = [];
+  private users: User[] = [
+    {
+      id: '22488770-cefe-4779-9b09-b3092b1827aa',
+      login: 'user1',
+      password: '1234',
+      role: UserRole.Admin,
+      createdAt: 1775414842770,
+      updatedAt: 1775414842770,
+    },
+    {
+      id: 'e59bfbc9-8047-4051-a4d7-785ddafd0c30',
+      login: 'user2',
+      password: '1234',
+      role: UserRole.Admin,
+      createdAt: 1775414861257,
+      updatedAt: 1775414861257,
+    },
+    {
+      id: 'f4f8b8f5-95ae-4fa7-803f-6844f34719f4',
+      login: 'user3',
+      password: '1234',
+      role: UserRole.Admin,
+      createdAt: 1775414884968,
+      updatedAt: 1775414884968,
+    },
+    {
+      id: 'd132a160-91f2-45fb-b5c6-809be78fbd50',
+      login: 'user4',
+      password: '1234',
+      role: UserRole.Admin,
+      createdAt: 1775414904107,
+      updatedAt: 1775414904107,
+    },
+    {
+      id: '01c9800c-07ea-4d59-bb04-015565e048cb',
+      login: 'user5',
+      password: '1234',
+      role: UserRole.Admin,
+      createdAt: 1775414910813,
+      updatedAt: 1775414960611,
+    },
+  ];
 
   constructor() {}
 

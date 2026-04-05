@@ -51,6 +51,12 @@ paths:
           required: false
           in: query
           schema:
+            enum:
+              - id
+              - login
+              - role
+              - createdAt
+              - updatedAt
             type: string
         - name: order
           required: false
@@ -170,6 +176,25 @@ paths:
           schema:
             minimum: 1
             type: number
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            enum:
+              - id
+              - content
+              - articleId
+              - authorId
+              - createdAt
+            type: string
+        - name: order
+          required: false
+          in: query
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
       responses:
         '200':
           description: ''
@@ -276,6 +301,16 @@ paths:
           required: false
           in: query
           schema:
+            enum:
+              - id
+              - title
+              - content
+              - status
+              - authorId
+              - categoryId
+              - tags
+              - createdAt
+              - updatedAt
             type: string
         - name: order
           required: false
@@ -400,6 +435,23 @@ paths:
           schema:
             minimum: 1
             type: number
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            enum:
+              - id
+              - name
+              - description
+            type: string
+        - name: order
+          required: false
+          in: query
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
       responses:
         '200':
           description: ''

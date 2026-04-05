@@ -7,7 +7,7 @@ export function sortData<T>(field: string, order: 'asc' | 'desc', data: T[]) {
       }
       return b[field].localeCompare(a[field]);
     }
-    if (typeof a[field] === 'number' && typeof [field] === 'number') {
+    if (typeof a[field] === 'number' && typeof b[field] === 'number') {
       if (order === 'asc') {
         return a[field] - b[field];
       }

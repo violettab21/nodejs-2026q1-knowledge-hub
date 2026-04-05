@@ -8,6 +8,7 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
+import { sortBy } from '../constants/constants';
 
 export class CategoryParams {
   @ApiProperty({
@@ -40,6 +41,7 @@ export class CategoryQueryParams {
 
   @IsOptional()
   @IsString()
+  @IsIn(sortBy)
   sortBy?: string;
 
   @IsOptional()

@@ -8,6 +8,7 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
+import { sortBy } from '../constants/constants';
 
 export class CommentsParams {
   @ApiProperty({
@@ -38,6 +39,7 @@ export class CommentsQueryParams {
 
   @IsOptional()
   @IsString()
+  @IsIn(sortBy)
   sortBy?: string;
 
   @IsOptional()
