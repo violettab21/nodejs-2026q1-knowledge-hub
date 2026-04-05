@@ -1,0 +1,15 @@
+import { CreateCommentDto } from '../dto/create-comment.dto';
+import { Comment } from '../entities/comment.entity';
+
+export interface ICommentsStorage {
+  getComments(): Comment[];
+  createComment(createCommentDto: CreateCommentDto): Comment;
+  removeComment(id: string): Comment;
+  getCommentById(id: string): Comment;
+}
+
+export interface IErrorResponse {
+  error: boolean;
+  message: string;
+  field?: string;
+}

@@ -1,0 +1,121 @@
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { IUsersStorage } from './interfaces/users.interface';
+import { CommentsService } from 'src/comments/comments.service';
+import { ArticlesService } from 'src/articles/articles.service';
+import { UserResponse } from './entities/user.entity';
+import { getPaginationData } from 'src/helpers/pagination/pagination';
+import { sortData } from 'src/helpers/sorting/sorting';
+import { PASSWORD_INCORRECT, USER_NOT_FOUND } from './constants/constants';
+
+@Injectable()
+export class UsersService {
+  constructor(
+    @Inject('IUsersStorage') private storage: IUsersStorage,
+    @Inject(forwardRef(() => CommentsService))
+    private readonly commentsService: CommentsService,
+    @Inject(forwardRef(() => ArticlesService))
+    private readonly articlesService: ArticlesService,
+  ) {}
+
+  create(createUserDto: CreateUserDto): UserResponse {
+    const user = this.storage.createUser(createUserDto);
+    const { id, login, role, createdAt, updatedAt } = user;
+    return {
+      id,
+      login,
+      role,
+      createdAt,
+      updatedAt,
+    };
+  }
+
+  findAll(
+    page?: number,
+    limit?: number,
+    sortBy?: string,
+    order?: 'asc' | 'desc',
+  ) {
+    const users = this.storage.getUsers();
+    let usersWithoutPass = users.map(
+      ({ id, login, role, createdAt, updatedAt }) => {
+        return {
+          id,
+          login,
+          role,
+          createdAt,
+          updatedAt,
+        };
+      },
+    );
+    if (sortBy && order) {
+      usersWithoutPass = sortData(sortBy, order, usersWithoutPass);
+    }
+
+    if (page && limit) {
+      return getPaginationData(+page, +limit, usersWithoutPass);
+    }
+    return usersWithoutPass;
+  }
+
+  findOne(id: string) {
+    const user = this.storage.getUserById(id);
+    if (user) {
+      const { id, login, role, createdAt, updatedAt } = user;
+      return {
+        id,
+        login,
+        role,
+        createdAt,
+        updatedAt,
+      };
+    }
+    return null;
+  }
+
+  update(id: string, updateUserDto: UpdateUserDto) {
+    const user = this.storage.getUserById(id);
+    if (user) {
+      if (user.password === updateUserDto.oldPassword) {
+        const updatedUser = this.storage.updateUser(id, updateUserDto);
+        const { id: userId, login, role, createdAt, updatedAt } = updatedUser;
+        return {
+          id: userId,
+          login,
+          role,
+          createdAt,
+          updatedAt,
+        };
+      }
+      return {
+        error: true,
+        message: PASSWORD_INCORRECT,
+        field: 'oldPassword',
+      };
+    }
+    return {
+      error: true,
+      message: USER_NOT_FOUND,
+      field: 'id',
+    };
+  }
+
+  remove(id: string) {
+    const user = this.storage.removeUser(id);
+
+    if (user) {
+      const { id: userId, login, role, createdAt, updatedAt } = user;
+      this.commentsService.removeUserComments(userId);
+      this.articlesService.cleanAuthorId(userId);
+      return {
+        id: userId,
+        login,
+        role,
+        createdAt,
+        updatedAt,
+      };
+    }
+    return null;
+  }
+}
