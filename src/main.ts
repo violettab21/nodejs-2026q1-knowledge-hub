@@ -24,6 +24,6 @@ async function bootstrap() {
   const yaml = dump(documentFactory());
   await writeFile('./doc/swagger.yaml', yaml);
   SwaggerModule.setup('/doc', app, documentFactory);
-  await app.listen(4000);
+  await app.listen(3000, '0.0.0.0');
 }
 bootstrap();
