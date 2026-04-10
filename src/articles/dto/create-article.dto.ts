@@ -7,7 +7,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { ArticleStatus } from '../enums/article.enum';
+import { ArticleStatus } from 'generated/prisma/enums';
 
 export class CreateArticleDto {
   @ApiProperty({
@@ -30,7 +30,7 @@ export class CreateArticleDto {
     enum: ['draft', 'published', 'archived'],
   })
   @IsOptional()
-  @IsIn(['draft', 'published', 'archived'])
+  @IsIn(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
   status?: ArticleStatus;
   @ApiProperty({
     type: String,

@@ -34,17 +34,16 @@ export class CommentsController {
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   @ApiResponse({ status: 422, description: UNPROCESSED_MESSAGE })
-  create(@Body() createCommentDto: CreateCommentDto) {
-    const newComment = this.commentsService.create(createCommentDto);
-
-    if ('message' in newComment) {
-      throw new HttpException(
-        newComment?.message,
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
-    }
-    if (newComment) {
+  async create(@Body() createCommentDto: CreateCommentDto) {
+    try {
+      const newComment = await this.commentsService.create(createCommentDto);
       return newComment;
+    } catch (err) {
+      if (err instanceof Error)
+        throw new HttpException(
+          `Non existing ${err.message}`,
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
     }
   }
 
@@ -54,9 +53,15 @@ export class CommentsController {
     type: [Comment],
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  findAll(@Query() params: CommentsQueryParams) {
+  async findAll(@Query() params: CommentsQueryParams) {
     const { articleId, page, limit, sortBy, order } = params;
-    return this.commentsService.findAll(articleId, page, limit, sortBy, order);
+    return await this.commentsService.findAll(
+      articleId,
+      page,
+      limit,
+      sortBy,
+      order,
+    );
   }
 
   @Get(':id')
@@ -66,8 +71,8 @@ export class CommentsController {
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
-  findOne(@Param() params: CommentsParams) {
-    const comment = this.commentsService.findOne(params.id);
+  async findOne(@Param() params: CommentsParams) {
+    const comment = await this.commentsService.findOne(params.id);
     if (comment) {
       return comment;
     }
@@ -81,8 +86,8 @@ export class CommentsController {
   })
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  remove(@Param() params: CommentsParams) {
-    const comment = this.commentsService.remove(params.id);
+  async remove(@Param() params: CommentsParams) {
+    const comment = await this.commentsService.remove(params.id);
     if (comment) {
       return comment;
     }

@@ -8,8 +8,8 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
-import { ArticleStatus } from '../enums/article.enum';
 import { sortBy } from '../constants/constants';
+import { ArticleStatus } from 'generated/prisma/enums';
 
 export class ArticleParams {
   @ApiProperty({

@@ -652,11 +652,11 @@ components:
         content:
           type: string
         status:
+          type: string
           enum: &ref_4
             - draft
             - published
             - archived
-          type: string
         authorId:
           type: string
           nullable: true
@@ -715,8 +715,8 @@ components:
         content:
           type: string
         status:
-          enum: *ref_4
           type: string
+          enum: *ref_4
         authorId:
           type: string
           nullable: true

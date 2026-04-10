@@ -33,12 +33,6 @@ export class UsersStorage implements IUsersStorage {
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
-    /* const updatedUser = this.getUserById(id);
-    if (updatedUser) {
-      updatedUser.password = updateUserDto.newPassword;
-      updatedUser.updatedAt = Date.now();
-      return updatedUser;
-    }*/
     return await this.prisma.user.update({
       where: { id: id },
       data: {
@@ -49,13 +43,6 @@ export class UsersStorage implements IUsersStorage {
   }
 
   async removeUser(id: string) {
-    /* const deletedUser = this.getUserById(id);
-    if (deletedUser) {
-      this.users = this.users.filter((user) => user.id !== id);
-      return deletedUser;
-    }
-    return null;
-  }*/
     return await this.prisma.user.delete({
       where: { id: id },
     });

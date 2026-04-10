@@ -47,7 +47,7 @@ export class CategoriesService {
   remove(id: string) {
     const category = this.storage.removeCategory(id);
     if (category) {
-      this.articlesService.cleanCategoryId(category.id);
+      //   this.articlesService.cleanCategoryId(category.id);
       return category;
     }
     return null;

@@ -1,11 +1,11 @@
 import { CreateCommentDto } from '../dto/create-comment.dto';
-import { Comment } from '../entities/comment.entity';
+import { Comment } from 'generated/prisma/client';
 
 export interface ICommentsStorage {
-  getComments(): Comment[];
-  createComment(createCommentDto: CreateCommentDto): Comment;
-  removeComment(id: string): Comment;
-  getCommentById(id: string): Comment;
+  getComments(): Promise<Comment[]>;
+  createComment(createCommentDto: CreateCommentDto): Promise<Comment>;
+  removeComment(id: string): Promise<Comment>;
+  getCommentById(id: string): Promise<Comment>;
 }
 
 export interface IErrorResponse {

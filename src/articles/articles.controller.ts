@@ -22,6 +22,7 @@ import {
   NOT_FOUND_MESSAGE,
   UNPROCESSED_MESSAGE,
 } from 'src/constants/constants';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
 @ApiTags('Article')
 @Controller('article')
@@ -36,17 +37,23 @@ export class ArticlesController {
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   @ApiResponse({ status: 422, description: UNPROCESSED_MESSAGE })
-  create(@Body() createArticleDto: CreateArticleDto) {
-    const newArticle = this.articlesService.create(createArticleDto);
-
-    if ('message' in newArticle) {
-      throw new HttpException(
-        newArticle.message,
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
-    }
-    if (newArticle) {
+  async create(@Body() createArticleDto: CreateArticleDto) {
+    try {
+      const newArticle = await this.articlesService.create(createArticleDto);
       return newArticle;
+    } catch (err) {
+      console.log(err);
+      if (err instanceof PrismaClientKnownRequestError) {
+        if (err.code === 'P2002') {
+          throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+        }
+        if (err.code === 'P2003') {
+          throw new HttpException(
+            'Non existing category or author',
+            HttpStatus.UNPROCESSABLE_ENTITY,
+          );
+        }
+      }
     }
   }
 
@@ -56,9 +63,9 @@ export class ArticlesController {
     type: [Article],
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  findAll(@Query() params?: ArticleQueryParams) {
+  async findAll(@Query() params?: ArticleQueryParams) {
     const { status, categoryId, tag, page, limit, sortBy, order } = params;
-    return this.articlesService.findAll(
+    return await this.articlesService.findAll(
       status,
       categoryId,
       tag,
@@ -76,8 +83,8 @@ export class ArticlesController {
   })
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  findOne(@Param() params: ArticleParams) {
-    const article = this.articlesService.findOne(params.id);
+  async findOne(@Param() params: ArticleParams) {
+    const article = await this.articlesService.findOne(params.id);
     if (article) {
       return article;
     }
@@ -93,24 +100,33 @@ export class ArticlesController {
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   @ApiResponse({ status: 422, description: UNPROCESSED_MESSAGE })
-  update(
+  async update(
     @Param() params: ArticleParams,
     @Body() updateArticleDto: UpdateArticleDto,
   ) {
-    const updatedArticle = this.articlesService.update(
-      params.id,
-      updateArticleDto,
-    );
-    if (updatedArticle) {
-      if ('message' in updatedArticle) {
-        throw new HttpException(
-          updatedArticle.message,
-          HttpStatus.UNPROCESSABLE_ENTITY,
-        );
-      }
+    try {
+      const updatedArticle = await this.articlesService.update(
+        params.id,
+        updateArticleDto,
+      );
       return updatedArticle;
+    } catch (err) {
+      console.log(err);
+      if (err instanceof PrismaClientKnownRequestError) {
+        if (err.code === 'P2002') {
+          throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+        }
+        if (err.code === 'P2003') {
+          throw new HttpException(
+            'Non existing category or author',
+            HttpStatus.UNPROCESSABLE_ENTITY,
+          );
+        }
+        if (err.code === 'P2025') {
+          throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+        }
+      }
     }
-    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
   }
 
   @Delete(':id')
@@ -120,11 +136,19 @@ export class ArticlesController {
   })
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  remove(@Param() params: ArticleParams) {
-    const deletedArticle = this.articlesService.remove(params.id);
-    if (!deletedArticle) {
-      throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+  async remove(@Param() params: ArticleParams) {
+    try {
+      const deletedArticle = await this.articlesService.remove(params.id);
+      if (!deletedArticle) {
+        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+      }
+      return deletedArticle;
+    } catch (err) {
+      if (err instanceof PrismaClientKnownRequestError) {
+        if (err.code === 'P2025') {
+          throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+        }
+      }
     }
-    return deletedArticle;
   }
 }

@@ -5,6 +5,7 @@ import { ArticlesStorage } from './storage/articles.storage';
 import { UsersModule } from 'src/users/users.module';
 import { CategoriesModule } from 'src/categories/categories.module';
 import { CommentsModule } from 'src/comments/comments.module';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CommentsModule } from 'src/comments/comments.module';
   providers: [
     ArticlesService,
     { provide: 'IArticlesStorage', useClass: ArticlesStorage },
+    PrismaService,
   ],
   exports: [ArticlesService],
 })
