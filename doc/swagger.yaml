@@ -562,11 +562,11 @@ components:
           description: User password
           example: '123456'
         role:
-          enum:
-            - admin
-            - editor
-            - viewer
           type: string
+          enum:
+            - ADMIN
+            - EDITOR
+            - VIEWER
           description: User role
           example: admin
       required:
@@ -582,11 +582,7 @@ components:
         login:
           type: string
         role:
-          enum:
-            - admin
-            - editor
-            - viewer
-          type: string
+          type: object
         createdAt:
           type: number
         updatedAt:

@@ -9,4 +9,3 @@ export const sortBy = [
   'createdAt',
   'updatedAt',
 ];
-

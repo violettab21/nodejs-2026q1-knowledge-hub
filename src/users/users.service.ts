@@ -8,6 +8,8 @@ import { UserResponse } from './entities/user.entity';
 import { getPaginationData } from 'src/helpers/pagination/pagination';
 import { sortData } from 'src/helpers/sorting/sorting';
 import { PASSWORD_INCORRECT, USER_NOT_FOUND } from './constants/constants';
+import { PrismaClientKnownRequestError } from 'generated/prisma/internal/prismaNamespace';
+import { NOT_FOUND_MESSAGE } from 'src/constants/constants';
 
 @Injectable()
 export class UsersService {
@@ -19,33 +21,33 @@ export class UsersService {
     private readonly articlesService: ArticlesService,
   ) {}
 
-  create(createUserDto: CreateUserDto): UserResponse {
+  async create(createUserDto: CreateUserDto): Promise<UserResponse> {
     const user = this.storage.createUser(createUserDto);
-    const { id, login, role, createdAt, updatedAt } = user;
+    const { id, login, role, createdAt, updatedAt } = await user;
     return {
       id,
       login,
       role,
-      createdAt,
-      updatedAt,
+      createdAt: Number(createdAt),
+      updatedAt: Number(updatedAt),
     };
   }
 
-  findAll(
+  async findAll(
     page?: number,
     limit?: number,
     sortBy?: string,
     order?: 'asc' | 'desc',
   ) {
-    const users = this.storage.getUsers();
+    const users = await this.storage.getUsers();
     let usersWithoutPass = users.map(
       ({ id, login, role, createdAt, updatedAt }) => {
         return {
           id,
           login,
           role,
-          createdAt,
-          updatedAt,
+          createdAt: Number(createdAt),
+          updatedAt: Number(updatedAt),
         };
       },
     );
@@ -59,33 +61,33 @@ export class UsersService {
     return usersWithoutPass;
   }
 
-  findOne(id: string) {
-    const user = this.storage.getUserById(id);
+  async findOne(id: string) {
+    const user = await this.storage.getUserById(id);
     if (user) {
       const { id, login, role, createdAt, updatedAt } = user;
       return {
         id,
         login,
         role,
-        createdAt,
-        updatedAt,
+        createdAt: Number(createdAt),
+        updatedAt: Number(updatedAt),
       };
     }
     return null;
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    const user = this.storage.getUserById(id);
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.storage.getUserById(id);
     if (user) {
       if (user.password === updateUserDto.oldPassword) {
-        const updatedUser = this.storage.updateUser(id, updateUserDto);
+        const updatedUser = await this.storage.updateUser(id, updateUserDto);
         const { id: userId, login, role, createdAt, updatedAt } = updatedUser;
         return {
           id: userId,
           login,
           role,
-          createdAt,
-          updatedAt,
+          createdAt: Number(createdAt),
+          updatedAt: Number(updatedAt),
         };
       }
       return {
@@ -101,21 +103,25 @@ export class UsersService {
     };
   }
 
-  remove(id: string) {
-    const user = this.storage.removeUser(id);
+  async remove(id: string) {
+    try {
+      const user = await this.storage.removeUser(id);
 
-    if (user) {
       const { id: userId, login, role, createdAt, updatedAt } = user;
-      this.commentsService.removeUserComments(userId);
-      this.articlesService.cleanAuthorId(userId);
       return {
         id: userId,
         login,
         role,
-        createdAt,
-        updatedAt,
+        createdAt: Number(createdAt),
+        updatedAt: Number(updatedAt),
       };
+    } catch (err) {
+      if (
+        err instanceof PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new Error(NOT_FOUND_MESSAGE);
+      }
     }
-    return null;
   }
 }

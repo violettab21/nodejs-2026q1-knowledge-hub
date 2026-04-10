@@ -35,8 +35,8 @@ export class UsersController {
     type: UserResponse,
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
   @Get()
@@ -45,9 +45,9 @@ export class UsersController {
     type: [UserResponse],
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  findAll(@Query() params?: UsersQueryParams) {
+  async findAll(@Query() params?: UsersQueryParams) {
     const { page, limit, sortBy, order } = params;
-    return this.usersService.findAll(page, limit, sortBy, order);
+    return await this.usersService.findAll(page, limit, sortBy, order);
   }
 
   @Get(':id')
@@ -57,8 +57,8 @@ export class UsersController {
   })
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  findOne(@Param() params: UserParams) {
-    const user = this.usersService.findOne(params.id);
+  async findOne(@Param() params: UserParams) {
+    const user = await this.usersService.findOne(params.id);
     if (user) {
       return user;
     }
@@ -74,8 +74,11 @@ export class UsersController {
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   @ApiResponse({ status: 403, description: FORBIDDEN_MESSAGE })
-  update(@Param() params: UserParams, @Body() updateUserDto: UpdateUserDto) {
-    const user = this.usersService.update(params.id, updateUserDto);
+  async update(
+    @Param() params: UserParams,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user = await this.usersService.update(params.id, updateUserDto);
     if ('error' in user) {
       if (user.field === 'oldPassword') {
         throw new HttpException(user.message, HttpStatus.FORBIDDEN);
@@ -93,11 +96,14 @@ export class UsersController {
   })
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  remove(@Param() params: UserParams) {
-    const user = this.usersService.remove(params.id);
-    if (user) {
+  async remove(@Param() params: UserParams) {
+    try {
+      const user = await this.usersService.remove(params.id);
       return user;
+    } catch (err) {
+      if (err instanceof Error && err.message === NOT_FOUND_MESSAGE) {
+        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+      }
     }
-    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
   }
 }

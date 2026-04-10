@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from '../enums/roles.enum';
+import { UserRole } from 'generated/prisma/enums';
 
 export class User {
   id: string;
