@@ -1,9 +1,7 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IUsersStorage } from './interfaces/users.interface';
-import { CommentsService } from 'src/comments/comments.service';
-import { ArticlesService } from 'src/articles/articles.service';
 import { UserResponse } from './entities/user.entity';
 import { getPaginationData } from 'src/helpers/pagination/pagination';
 import { sortData } from 'src/helpers/sorting/sorting';
@@ -13,13 +11,7 @@ import { NOT_FOUND_MESSAGE } from 'src/constants/constants';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @Inject('IUsersStorage') private storage: IUsersStorage,
-    @Inject(forwardRef(() => CommentsService))
-    private readonly commentsService: CommentsService,
-    @Inject(forwardRef(() => ArticlesService))
-    private readonly articlesService: ArticlesService,
-  ) {}
+  constructor(@Inject('IUsersStorage') private storage: IUsersStorage) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserResponse> {
     const user = this.storage.createUser(createUserDto);

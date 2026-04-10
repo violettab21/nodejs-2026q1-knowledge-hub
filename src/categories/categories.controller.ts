@@ -21,6 +21,7 @@ import {
   BAD_REQUEST_MESSAGE,
   NOT_FOUND_MESSAGE,
 } from 'src/constants/constants';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
 @ApiTags('Category')
 @Controller('category')
@@ -34,8 +35,8 @@ export class CategoriesController {
     type: Category,
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
+  async create(@Body() createCategoryDto: CreateCategoryDto) {
+    return await this.categoriesService.create(createCategoryDto);
   }
 
   @Get()
@@ -44,9 +45,9 @@ export class CategoriesController {
     type: [Category],
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
-  findAll(@Query() params: CategoryQueryParams) {
+  async findAll(@Query() params: CategoryQueryParams) {
     const { page, limit, sortBy, order } = params;
-    return this.categoriesService.findAll(page, limit, sortBy, order);
+    return await this.categoriesService.findAll(page, limit, sortBy, order);
   }
 
   @Get(':id')
@@ -56,8 +57,8 @@ export class CategoriesController {
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
-  findOne(@Param() params: CategoryParams) {
-    const category = this.categoriesService.findOne(params.id);
+  async findOne(@Param() params: CategoryParams) {
+    const category = await this.categoriesService.findOne(params.id);
     if (category) {
       return category;
     }
@@ -72,18 +73,30 @@ export class CategoriesController {
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
-  update(
+  async update(
     @Param() params: CategoryParams,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    const category = this.categoriesService.update(
-      params.id,
-      updateCategoryDto,
-    );
-    if (category) {
+    try {
+      const category = await this.categoriesService.update(
+        params.id,
+        updateCategoryDto,
+      );
+
       return category;
+    } catch (err) {
+      if (
+        err instanceof PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          'Internal Server Error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
-    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
   }
 
   @Delete(':id')
@@ -93,11 +106,23 @@ export class CategoriesController {
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
-  remove(@Param() params: CategoryParams) {
-    const category = this.categoriesService.remove(params.id);
-    if (category) {
+  async remove(@Param() params: CategoryParams) {
+    try {
+      const category = await this.categoriesService.remove(params.id);
+
       return category;
+    } catch (err) {
+      if (
+        err instanceof PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          'Internal Server Error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
-    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
   }
 }

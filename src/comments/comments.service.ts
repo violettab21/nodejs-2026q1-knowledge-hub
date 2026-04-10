@@ -1,25 +1,20 @@
-import { /*forwardRef,*/ Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { ICommentsStorage } from './interfaces/comments.interface';
-/*import { ArticlesService } from 'src/articles/articles.service';
-import { UsersService } from 'src/users/users.service';*/
 import { getPaginationData } from 'src/helpers/pagination/pagination';
 import { sortData } from 'src/helpers/sorting/sorting';
 import { PrismaClientKnownRequestError } from 'generated/prisma/internal/prismaNamespace';
 
 @Injectable()
 export class CommentsService {
-  constructor(
-    @Inject('ICommentsStorage') private storage: ICommentsStorage,
-    /*  @Inject(forwardRef(() => ArticlesService))
-    private readonly articlesService: ArticlesService,
-    @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService,*/
-  ) {}
+  constructor(@Inject('ICommentsStorage') private storage: ICommentsStorage) {}
   async create(createCommentDto: CreateCommentDto) {
     try {
       const newComment = await this.storage.createComment(createCommentDto);
-      return newComment;
+      return {
+        ...newComment,
+        createdAt: Number(newComment.createdAt),
+      };
     } catch (err) {
       if (
         err instanceof PrismaClientKnownRequestError &&
@@ -50,15 +45,20 @@ export class CommentsService {
     if (page && limit) {
       return getPaginationData(+page, +limit, comments);
     }
-    return data;
+    return data.map((el) => {
+      return {
+        ...el,
+        createdAt: Number(el.createdAt),
+      };
+    });
   }
 
   async findOne(id: string) {
     const comment = await this.storage.getCommentById(id);
-    if (comment) {
-      return comment;
-    }
-    return null;
+    return {
+      ...comment,
+      createdAt: Number(comment.createdAt),
+    };
   }
 
   async remove(id: string) {

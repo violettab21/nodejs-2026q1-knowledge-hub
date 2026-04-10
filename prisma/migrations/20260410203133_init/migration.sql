@@ -29,7 +29,7 @@ CREATE TABLE "Category" (
 CREATE TABLE "Comment" (
     "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "authorId" TEXT NOT NULL,
+    "authorId" TEXT,
     "articleId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -40,6 +40,7 @@ CREATE TABLE "Comment" (
 CREATE TABLE "Article" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
     "authorId" TEXT,
     "categoryId" TEXT,
     "status" "ArticleStatus" NOT NULL DEFAULT 'DRAFT',
@@ -58,15 +59,18 @@ CREATE TABLE "Tag" (
 );
 
 -- CreateTable
-CREATE TABLE "TagsOnArticle" (
-    "articleId" TEXT NOT NULL,
-    "tagId" TEXT NOT NULL,
+CREATE TABLE "_TagsOnArticle" (
+    "A" TEXT NOT NULL,
+    "B" TEXT NOT NULL,
 
-    CONSTRAINT "TagsOnArticle_pkey" PRIMARY KEY ("articleId","tagId")
+    CONSTRAINT "_TagsOnArticle_AB_pkey" PRIMARY KEY ("A","B")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Tag_name_key" ON "Tag"("name");
+
+-- CreateIndex
+CREATE INDEX "_TagsOnArticle_B_index" ON "_TagsOnArticle"("B");
 
 -- AddForeignKey
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -81,7 +85,7 @@ ALTER TABLE "Article" ADD CONSTRAINT "Article_authorId_fkey" FOREIGN KEY ("autho
 ALTER TABLE "Article" ADD CONSTRAINT "Article_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TagsOnArticle" ADD CONSTRAINT "TagsOnArticle_articleId_fkey" FOREIGN KEY ("articleId") REFERENCES "Article"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_TagsOnArticle" ADD CONSTRAINT "_TagsOnArticle_A_fkey" FOREIGN KEY ("A") REFERENCES "Article"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TagsOnArticle" ADD CONSTRAINT "TagsOnArticle_tagId_fkey" FOREIGN KEY ("tagId") REFERENCES "Tag"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "_TagsOnArticle" ADD CONSTRAINT "_TagsOnArticle_B_fkey" FOREIGN KEY ("B") REFERENCES "Tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;

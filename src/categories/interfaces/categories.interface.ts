@@ -1,14 +1,14 @@
+import { Category } from 'generated/prisma/client';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
-import { Category } from '../entities/category.entity';
 
 export interface ICategoriesStorage {
-  getCategories(): Category[];
-  getCategoryById(id: string): Category | null;
-  createCategory(createCategoryDto: CreateCategoryDto): Category;
+  getCategories(): Promise<Category[]>;
+  getCategoryById(id: string): Promise<Category> | null;
+  createCategory(createCategoryDto: CreateCategoryDto): Promise<Category>;
   updateCategory(
     id: string,
     updateCategoryDto: UpdateCategoryDto,
-  ): Category | null;
-  removeCategory(id: string): Category | null;
+  ): Promise<Category> | null;
+  removeCategory(id: string): Promise<Category> | null;
 }

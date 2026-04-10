@@ -1,10 +1,7 @@
-import { /*forwardRef,*/ Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { IArticlesStorage } from './interfaces/articles.interface';
-/*import { UsersService } from 'src/users/users.service';
-import { CategoriesService } from 'src/categories/categories.service';
-import { CommentsService } from 'src/comments/comments.service';*/
 import { getPaginationData } from 'src/helpers/pagination/pagination';
 import { sortData } from 'src/helpers/sorting/sorting';
 import { ArticleStatus } from 'generated/prisma/enums';
@@ -14,12 +11,6 @@ export class ArticlesService {
   constructor(
     @Inject('IArticlesStorage')
     private storage: IArticlesStorage,
-    /*  @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService,
-    @Inject(forwardRef(() => CategoriesService))
-    private readonly categoriesService: CategoriesService,
-    @Inject(forwardRef(() => CommentsService))
-    private readonly commentsService: CommentsService,*/
   ) {}
   async create(createArticleDto: CreateArticleDto) {
     try {

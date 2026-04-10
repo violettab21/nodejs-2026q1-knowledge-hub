@@ -20,6 +20,7 @@ import {
   NOT_FOUND_MESSAGE,
   UNPROCESSED_MESSAGE,
 } from 'src/constants/constants';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -87,10 +88,23 @@ export class CommentsController {
   @ApiResponse({ status: 404, description: NOT_FOUND_MESSAGE })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   async remove(@Param() params: CommentsParams) {
-    const comment = await this.commentsService.remove(params.id);
-    if (comment) {
-      return comment;
+    try {
+      const comment = await this.commentsService.remove(params.id);
+      if (comment) {
+        return comment;
+      }
+    } catch (err) {
+      if (
+        err instanceof PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          'Internal Server Error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
-    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
   }
 }
