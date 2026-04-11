@@ -14,13 +14,13 @@ FROM  node:24-alpine AS final
 
 WORKDIR /usr/src/app
 
+COPY --from=builder /usr/src/app/dist ./
 COPY --from=builder /usr/src/app/package*.json .
+COPY --from=builder /usr/src/app/prisma ./prisma
 COPY --from=builder /usr/src/app/doc ./doc
-
-COPY --from=builder /usr/src/app/dist ./dist
 
 RUN npm ci --omit=dev
 
 EXPOSE 4000
 
-CMD ["npm", "run", "start:prod"]
+CMD ["sh", "-c", "npx prisma migrate dev && npm run start:prod"]

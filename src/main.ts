@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { dump } from 'js-yaml';
 import { writeFile } from 'node:fs/promises';
+import 'dotenv/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +25,6 @@ async function bootstrap() {
   const yaml = dump(documentFactory());
   await writeFile('./doc/swagger.yaml', yaml);
   SwaggerModule.setup('/doc', app, documentFactory);
-  await app.listen(3000, '0.0.0.0');
+  await app.listen(process.env.PORT, '0.0.0.0');
 }
 bootstrap();
