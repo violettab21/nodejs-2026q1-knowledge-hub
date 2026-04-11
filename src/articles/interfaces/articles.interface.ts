@@ -1,9 +1,21 @@
-import { Article } from 'generated/prisma/client';
+import { Article, ArticleStatus } from 'generated/prisma/client';
 import { CreateArticleDto } from '../dto/create-article.dto';
 import { UpdateArticleDto } from '../dto/update-article.dto';
 
 export interface IArticlesStorage {
   getArticles(): Promise<
+    ({
+      tags: {
+        name: string;
+        id: string;
+      }[];
+    } & Article)[]
+  >;
+  filterArticles(
+    status?: ArticleStatus,
+    categoryId?: string,
+    tag?: string,
+  ): Promise<
     ({
       tags: {
         name: string;

@@ -23,4 +23,4 @@ RUN npm ci --omit=dev
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "npx prisma migrate dev && npm run start:prod"]
+CMD ["sh", "-c", "npm run prisma:migrate && node prisma/seed.js && npm run start:prod:docker"]

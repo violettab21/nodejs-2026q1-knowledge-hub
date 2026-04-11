@@ -22,6 +22,40 @@ export class ArticlesStorage implements IArticlesStorage {
     });
   }
 
+  async filterArticles(
+    status?: ArticleStatus,
+    categoryId?: string,
+    tag?: string,
+  ) {
+    const filterCondition: {
+      status?: ArticleStatus;
+      categoryId?: string;
+      tags?: {
+        some: {
+          name: string;
+        };
+      };
+    } = {};
+    if (status) {
+      filterCondition.status = status;
+    }
+    if (categoryId) {
+      filterCondition.categoryId = categoryId;
+    }
+    if (tag) {
+      filterCondition.tags = {
+        some: {
+          name: tag,
+        },
+      };
+    }
+    const articles = this.prisma.article.findMany({
+      where: filterCondition,
+      include: { tags: true },
+    });
+    return articles;
+  }
+
   async createArticle(createArticleDto: CreateArticleDto) {
     const { status, authorId, categoryId, tags } = createArticleDto;
     const newArticle = await this.prisma.article.create({
