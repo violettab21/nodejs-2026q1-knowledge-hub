@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArticleStatus } from '../enums/article.enum';
+import { ArticleStatus } from 'generated/prisma/enums';
 
 export class Article {
   @ApiProperty({

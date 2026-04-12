@@ -23,7 +23,7 @@ export class ArticleParams {
 export class ArticleQueryParams {
   @ApiProperty({
     type: String,
-    enum: ['draft', 'published', 'archived'],
+    enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'],
     required: false,
   })
   @IsOptional()

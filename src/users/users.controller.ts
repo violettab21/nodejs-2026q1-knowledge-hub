@@ -22,6 +22,7 @@ import {
   FORBIDDEN_MESSAGE,
   NOT_FOUND_MESSAGE,
 } from 'src/constants/constants';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
 @ApiTags('User')
 @Controller('user')
@@ -36,7 +37,20 @@ export class UsersController {
   })
   @ApiResponse({ status: 400, description: BAD_REQUEST_MESSAGE })
   async create(@Body() createUserDto: CreateUserDto) {
-    return await this.usersService.create(createUserDto);
+    try {
+      return await this.usersService.create(createUserDto);
+    } catch (err) {
+      if (
+        err instanceof PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+      } else
+        throw new HttpException(
+          'Internal Server Error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+    }
   }
 
   @Get()

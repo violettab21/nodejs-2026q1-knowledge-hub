@@ -27,7 +27,7 @@ export class CreateArticleDto {
   @ApiProperty({
     type: String,
     required: false,
-    enum: ['draft', 'published', 'archived'],
+    enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'],
   })
   @IsOptional()
   @IsIn(['DRAFT', 'PUBLISHED', 'ARCHIVED'])

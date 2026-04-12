@@ -42,7 +42,6 @@ export class ArticlesController {
       const newArticle = await this.articlesService.create(createArticleDto);
       return newArticle;
     } catch (err) {
-      console.log(err);
       if (err instanceof PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {
           throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
@@ -111,7 +110,6 @@ export class ArticlesController {
       );
       return updatedArticle;
     } catch (err) {
-      console.log(err);
       if (err instanceof PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {
           throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);

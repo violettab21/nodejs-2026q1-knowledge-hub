@@ -36,7 +36,6 @@ export class ArticlesService {
     sortBy?: string,
     order?: 'asc' | 'desc',
   ) {
-    /*const articles = await this.storage.getArticles();*/
     const articles = await this.storage.filterArticles(status, categoryId, tag);
     let data = articles.map(({ tags, createdAt, updatedAt, ...rest }) => {
       return {
@@ -46,15 +45,6 @@ export class ArticlesService {
         updatedAt: Number(updatedAt),
       };
     });
-    /* if (status || categoryId || tag) {
-      data = data.filter((article) => {
-        return (
-          (status ? article.status === status : true) &&
-          (categoryId ? article.categoryId === categoryId : true) &&
-          (tag ? article.tags.includes(tag) : true)
-        );
-      });
-    }*/
 
     if (sortBy && order) {
       data = sortData(sortBy, order, data);
@@ -68,13 +58,16 @@ export class ArticlesService {
 
   async findOne(id: string) {
     const article = await this.storage.getArticleById(id);
-    const { tags, createdAt, updatedAt, ...rest } = article;
-    return {
-      ...rest,
-      tags: tags.map((tag) => tag.name),
-      createdAt: Number(createdAt),
-      updatedAt: Number(updatedAt),
-    };
+    if (article) {
+      const { tags, createdAt, updatedAt, ...rest } = article;
+      return {
+        ...rest,
+        tags: tags.map((tag) => tag.name),
+        createdAt: Number(createdAt),
+        updatedAt: Number(updatedAt),
+      };
+    }
+    return null;
   }
 
   async update(id: string, updateArticleDto: UpdateArticleDto) {
