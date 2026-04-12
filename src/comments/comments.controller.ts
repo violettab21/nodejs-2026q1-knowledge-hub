@@ -17,6 +17,7 @@ import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Comment } from './entities/comment.entity';
 import {
   BAD_REQUEST_MESSAGE,
+  INTERNAL_ERROR_MESSAGE,
   NOT_FOUND_MESSAGE,
   UNPROCESSED_MESSAGE,
 } from 'src/constants/constants';
@@ -101,7 +102,7 @@ export class CommentsController {
         throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
-          'Internal Server Error',
+          INTERNAL_ERROR_MESSAGE,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

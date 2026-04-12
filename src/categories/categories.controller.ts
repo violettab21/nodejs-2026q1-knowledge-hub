@@ -19,6 +19,7 @@ import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Category } from './entities/category.entity';
 import {
   BAD_REQUEST_MESSAGE,
+  INTERNAL_ERROR_MESSAGE,
   NOT_FOUND_MESSAGE,
 } from 'src/constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
@@ -92,7 +93,7 @@ export class CategoriesController {
         throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
-          'Internal Server Error',
+          INTERNAL_ERROR_MESSAGE,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -119,7 +120,7 @@ export class CategoriesController {
         throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
-          'Internal Server Error',
+          INTERNAL_ERROR_MESSAGE,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

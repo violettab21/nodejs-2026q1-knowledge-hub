@@ -20,6 +20,7 @@ import { UserResponse } from './entities/user.entity';
 import {
   BAD_REQUEST_MESSAGE,
   FORBIDDEN_MESSAGE,
+  INTERNAL_ERROR_MESSAGE,
   NOT_FOUND_MESSAGE,
 } from 'src/constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
@@ -44,10 +45,10 @@ export class UsersController {
         err instanceof PrismaClientKnownRequestError &&
         err.code === 'P2002'
       ) {
-        throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+        throw new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
       } else
         throw new HttpException(
-          'Internal Server Error',
+          INTERNAL_ERROR_MESSAGE,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
     }

@@ -18,6 +18,9 @@ services:
       - db
     networks:
       - custom_network
+    restart: on-failure
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost/${PORT}']
   db:
     image: postgres:16-alpine
     ports:
@@ -30,6 +33,11 @@ services:
       - postgres_data:/var/lib/postgresql
     networks:
       - custom_network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-d', '${POSTGRES_DB}', '-h', 'db']
+      start_period: 5s
+
 volumes:
   postgres_data:
 networks:

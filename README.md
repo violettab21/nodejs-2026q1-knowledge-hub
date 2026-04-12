@@ -27,6 +27,15 @@ After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
+## Running application using docker
+
+```
+ docker-compose up --build
+```
+
+After starting the app on port (4000 as default) you access api via http://localhost:4000/.
+Prisma migrate and seed are running automatically.
+
 ## Rest Api endpoints
 
 1. User:
@@ -54,19 +63,23 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 - DELETE /article/{id}
 
 4. Comment
+
 - POST /comment
 - GET /comment (Required Query parameters: articleId)
 - GET /comment/{id} (implemented for tests, it wasn't mentioned in requirements)
 - DELETE /comment/{id}
 
 All GET endpoints support optional query parameters for pagination and sorting:
+
 1. Pagination:
-* page and limit query parameters should be passed to get response with pagination
-* If page and limit query parameters are not provided, regular response without pagination logic will be received
+
+- page and limit query parameters should be passed to get response with pagination
+- If page and limit query parameters are not provided, regular response without pagination logic will be received
 
 2. sorting
-* sortBy (field to sort by) and order (asc or desc) query parameters should be passed to get sorted response data
-* If sortBy and order query parameters are not provided, sorting will not be applied even one of parameters provided
+
+- sortBy (field to sort by) and order (asc or desc) query parameters should be passed to get sorted response data
+- If sortBy and order query parameters are not provided, sorting will not be applied even one of parameters provided
 
 ## Testing
 

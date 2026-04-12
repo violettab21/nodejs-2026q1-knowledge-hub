@@ -44,7 +44,7 @@ export class ArticlesController {
     } catch (err) {
       if (err instanceof PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {
-          throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+          throw new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
         }
         if (err.code === 'P2003') {
           throw new HttpException(
@@ -112,7 +112,7 @@ export class ArticlesController {
     } catch (err) {
       if (err instanceof PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {
-          throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+          throw new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
         }
         if (err.code === 'P2003') {
           throw new HttpException(
