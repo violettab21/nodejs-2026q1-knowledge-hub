@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import 'dotenv/config';
 import { StringValue } from 'ms';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
         expiresIn: `${process.env.JWT_ACCESS_TTL}` as StringValue,
       },
     }),
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [

@@ -552,6 +552,36 @@ paths:
       responses:
         '200':
           description: ''
+  /auth/signUp:
+    post:
+      operationId: AuthController_signUp
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpDTO'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+  /auth/refresh:
+    post:
+      operationId: AuthController_refresh
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshDTO'
+      responses:
+        '200':
+          description: ''
 info:
   title: Knowledge Hub
   description: The Knowledge Hub API description
@@ -786,3 +816,24 @@ components:
       required:
         - login
         - password
+    SignUpDTO:
+      type: object
+      properties:
+        login:
+          type: string
+          description: User login
+          example: user1
+        password:
+          type: string
+          description: User password
+          example: '123456'
+      required:
+        - login
+        - password
+    RefreshDTO:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+      required:
+        - refreshToken
