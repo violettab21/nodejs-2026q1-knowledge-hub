@@ -21,6 +21,14 @@ export class UsersStorage implements IUsersStorage {
     });
   }
 
+  async getUserByLogin(login: string): Promise<User> {
+    return this.prisma.user.findUnique({
+      where: {
+        login: login,
+      },
+    });
+  }
+
   async createUser(createUserDto: CreateUserDto) {
     const { role, ...props } = createUserDto;
     const newUser = await this.prisma.user.create({

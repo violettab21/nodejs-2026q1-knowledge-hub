@@ -163,7 +163,7 @@ paths:
         '400':
           description: Bad Request
         '422':
-          description: Unprocessed entity
+          description: Unprocessed Entity
       tags: &ref_1
         - Article
     get:
@@ -174,9 +174,9 @@ paths:
           in: query
           schema:
             enum:
-              - draft
-              - published
-              - archived
+              - DRAFT
+              - PUBLISHED
+              - ARCHIVED
             type: string
         - name: categoryId
           required: false
@@ -282,7 +282,7 @@ paths:
         '404':
           description: Not Found
         '422':
-          description: Unprocessed entity
+          description: Unprocessed Entity
       tags: *ref_1
     delete:
       operationId: ArticlesController_remove
@@ -448,7 +448,7 @@ paths:
         '400':
           description: Bad Request
         '422':
-          description: Unprocessed entity
+          description: Unprocessed Entity
       tags: &ref_3
         - Comment
     get:
@@ -539,6 +539,19 @@ paths:
         '404':
           description: Not Found
       tags: *ref_3
+  /auth/login:
+    post:
+      operationId: AuthController_login
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDTO'
+      responses:
+        '200':
+          description: ''
 info:
   title: Knowledge Hub
   description: The Knowledge Hub API description
@@ -613,9 +626,9 @@ components:
         status:
           type: string
           enum: &ref_4
-            - draft
-            - published
-            - archived
+            - DRAFT
+            - PUBLISHED
+            - ARCHIVED
         authorId:
           type: string
           nullable: true
@@ -639,11 +652,7 @@ components:
         content:
           type: string
         status:
-          enum:
-            - draft
-            - published
-            - archived
-          type: string
+          type: object
         authorId:
           type: string
           nullable: true
@@ -763,3 +772,17 @@ components:
         - articleId
         - authorId
         - createdAt
+    LoginDTO:
+      type: object
+      properties:
+        login:
+          type: string
+          description: User login
+          example: user1
+        password:
+          type: string
+          description: User password
+          example: '123456'
+      required:
+        - login
+        - password
