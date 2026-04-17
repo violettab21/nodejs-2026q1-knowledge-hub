@@ -22,6 +22,8 @@ import {
   UNPROCESSED_MESSAGE,
 } from 'src/constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { UserRole } from 'generated/prisma/enums';
+import { Roles } from 'src/auth/auth.roles';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -29,6 +31,7 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Post()
+  @Roles([UserRole.ADMIN, UserRole.EDITOR])
   @ApiBody({ type: CreateCommentDto })
   @ApiResponse({
     status: 201,
@@ -82,6 +85,7 @@ export class CommentsController {
   }
 
   @Delete(':id')
+  @Roles([UserRole.ADMIN, UserRole.EDITOR])
   @HttpCode(204)
   @ApiResponse({
     status: 204,

@@ -23,6 +23,8 @@ import {
   NOT_FOUND_MESSAGE,
 } from 'src/constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { UserRole } from 'generated/prisma/enums';
+import { Roles } from 'src/auth/auth.roles';
 
 @ApiTags('Category')
 @Controller('category')
@@ -30,6 +32,7 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
+  @Roles([UserRole.ADMIN])
   @ApiBody({ type: CreateCategoryDto })
   @ApiResponse({
     status: 201,
@@ -67,6 +70,7 @@ export class CategoriesController {
   }
 
   @Put(':id')
+  @Roles([UserRole.ADMIN])
   @ApiBody({ type: UpdateCategoryDto })
   @ApiResponse({
     status: 200,
@@ -101,6 +105,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @Roles([UserRole.ADMIN])
   @HttpCode(204)
   @ApiResponse({
     status: 204,

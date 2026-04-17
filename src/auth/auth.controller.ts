@@ -5,21 +5,20 @@ import {
   HttpException,
   HttpStatus,
   Post,
-  UnauthorizedException,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDTO } from './dto/loginDTO.dto';
 import { BAD_REQUEST_MESSAGE } from 'src/constants/constants';
 import { SignUpDTO } from './dto/signUpDTO.dto';
 import { RefreshDTO } from './dto/refreshDTO.dto';
+import { Public } from './auth.public';
+import { LoginDTO } from './dto/loginDTO.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @Public()
   @HttpCode(200)
   async login(@Body() loginDTO: LoginDTO) {
     try {
@@ -38,6 +37,7 @@ export class AuthController {
 
   @Post('signUp')
   @HttpCode(201)
+  @Public()
   async signUp(@Body() signUpDTO: SignUpDTO) {
     try {
       const user = await this.authService.signUp(
@@ -54,6 +54,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @Public()
   @HttpCode(200)
   async refresh(@Body() refreshDTO: RefreshDTO) {
     try {

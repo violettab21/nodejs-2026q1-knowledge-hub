@@ -23,6 +23,8 @@ import {
   UNPROCESSED_MESSAGE,
 } from 'src/constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { UserRole } from 'generated/prisma/enums';
+import { Roles } from 'src/auth/auth.roles';
 
 @ApiTags('Article')
 @Controller('article')
@@ -31,6 +33,7 @@ export class ArticlesController {
 
   @Post()
   @ApiBody({ type: CreateArticleDto })
+  @Roles([UserRole.ADMIN, UserRole.EDITOR])
   @ApiResponse({
     status: 201,
     type: Article,
@@ -91,6 +94,7 @@ export class ArticlesController {
   }
 
   @Put(':id')
+  @Roles([UserRole.ADMIN, UserRole.EDITOR])
   @ApiBody({ type: UpdateArticleDto })
   @ApiResponse({
     status: 200,
@@ -129,6 +133,7 @@ export class ArticlesController {
 
   @Delete(':id')
   @HttpCode(204)
+  @Roles([UserRole.ADMIN, UserRole.EDITOR])
   @ApiResponse({
     status: 204,
   })

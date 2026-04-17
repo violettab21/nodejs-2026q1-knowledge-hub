@@ -24,6 +24,8 @@ import {
   NOT_FOUND_MESSAGE,
 } from 'src/constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { UserRole } from 'generated/prisma/enums';
+import { Roles } from 'src/auth/auth.roles';
 
 @ApiTags('User')
 @Controller('user')
@@ -81,6 +83,7 @@ export class UsersController {
   }
 
   @Put(':id')
+  @Roles([UserRole.ADMIN])
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({
     status: 200,
@@ -105,6 +108,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @Roles([UserRole.ADMIN])
   @HttpCode(204)
   @ApiResponse({
     status: 204,
