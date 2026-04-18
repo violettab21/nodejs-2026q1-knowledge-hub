@@ -8,6 +8,7 @@ import { sortData } from 'src/helpers/sorting/sorting';
 import { PASSWORD_INCORRECT, USER_NOT_FOUND } from './constants/constants';
 import { PrismaClientKnownRequestError } from 'generated/prisma/internal/prismaNamespace';
 import { NOT_FOUND_MESSAGE } from 'src/constants/constants';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -71,7 +72,11 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.storage.getUserById(id);
     if (user) {
-      if (user.password === updateUserDto.oldPassword) {
+      const isPasswordCorrect = await bcrypt.compare(
+        updateUserDto.oldPassword,
+        user.password,
+      );
+      if (isPasswordCorrect) {
         const updatedUser = await this.storage.updateUser(id, updateUserDto);
         const { id: userId, login, role, createdAt, updatedAt } = updatedUser;
         return {

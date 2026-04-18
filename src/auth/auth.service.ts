@@ -10,6 +10,7 @@ import 'dotenv/config';
 import { StringValue } from 'ms';
 import { UsersService } from 'src/users/users.service';
 import { UserRole } from 'generated/prisma/enums';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,8 @@ export class AuthService {
     if (!user) {
       return null;
     }
-    if (user.password === password) {
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (isPasswordCorrect) {
       const payload = { sub: user.id, login: user.login, role: user.role };
       const accessToken = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_SECRET,
@@ -45,7 +47,8 @@ export class AuthService {
   async signUp(login: string, password: string) {
     const user = await this.storage.getUserByLogin(login);
     if (!user) {
-      const newUser = await this.usersService.create({ login, password });
+      const hash = await bcrypt.hash(password, Number(process.env.CRYPT_SALT));
+      const newUser = await this.usersService.create({ login, password: hash });
       return newUser;
     }
 
