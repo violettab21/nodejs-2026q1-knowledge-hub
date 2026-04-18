@@ -280,7 +280,7 @@ describe('Category (e2e)', () => {
       const createArticleDto = {
         title: 'TEST_ARTICLE',
         content: 'Test content',
-        status: 'draft',
+        status: 'DRAFT',
         authorId: null,
         categoryId,
         tags: [],

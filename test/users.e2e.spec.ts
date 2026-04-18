@@ -104,7 +104,7 @@ describe('Users (e2e)', () => {
       expect(login).toBe(createUserDto.login);
       expect(response.body).not.toHaveProperty('password');
       expect(validate(id)).toBe(true);
-      expect(role).toBe('viewer');
+      expect(role).toBe('VIEWER');
       expect(typeof createdAt).toBe('number');
       expect(typeof updatedAt).toBe('number');
       expect(createdAt === updatedAt).toBe(true);
@@ -290,7 +290,7 @@ describe('Users (e2e)', () => {
       const createArticleDto = {
         title: 'TEST_ARTICLE',
         content: 'Test content',
-        status: 'draft',
+        status: 'DRAFT',
         authorId: userId,
         categoryId: null,
         tags: [],

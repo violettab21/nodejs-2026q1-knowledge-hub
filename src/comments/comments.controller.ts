@@ -23,9 +23,9 @@ import {
   UNPROCESSED_MESSAGE,
 } from 'src/constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
-import { UserRole } from 'generated/prisma/enums';
 import { Roles } from 'src/auth/auth.roles';
 import { PermissionsCommentsGuard } from 'src/auth/guards/commentsPermissions.guard';
+import { UserRole } from 'generated/prisma/enums';
 
 @ApiTags('Comment')
 @Controller('comment')

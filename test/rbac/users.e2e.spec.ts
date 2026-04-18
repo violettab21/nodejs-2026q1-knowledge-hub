@@ -35,7 +35,7 @@ describe('RBAC - Users (e2e)', () => {
 
     const editorResult = await getUserTokenByRole(
       request,
-      'editor',
+      'EDITOR',
       adminHeaders,
     );
     editorHeaders = { ...headers, Authorization: editorResult.token };
@@ -43,7 +43,7 @@ describe('RBAC - Users (e2e)', () => {
 
     const viewerResult = await getUserTokenByRole(
       request,
-      'viewer',
+      'VIEWER',
       adminHeaders,
     );
     viewerHeaders = { ...headers, Authorization: viewerResult.token };

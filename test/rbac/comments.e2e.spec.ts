@@ -31,7 +31,7 @@ describe('RBAC - Comments (e2e)', () => {
 
     const editorResult = await getUserTokenByRole(
       request,
-      'editor',
+      'EDITOR',
       adminHeaders,
     );
     editorHeaders = { ...headers, Authorization: editorResult.token };
@@ -39,7 +39,7 @@ describe('RBAC - Comments (e2e)', () => {
 
     const viewerResult = await getUserTokenByRole(
       request,
-      'viewer',
+      'VIEWER',
       adminHeaders,
     );
     viewerHeaders = { ...headers, Authorization: viewerResult.token };
@@ -52,7 +52,7 @@ describe('RBAC - Comments (e2e)', () => {
       .send({
         title: 'TEST_ARTICLE_FOR_RBAC_COMMENTS',
         content: 'Test content',
-        status: 'draft',
+        status: 'DRAFT',
         authorId: null,
         categoryId: null,
         tags: [],

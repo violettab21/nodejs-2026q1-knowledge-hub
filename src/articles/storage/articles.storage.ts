@@ -90,8 +90,9 @@ export class ArticlesStorage implements IArticlesStorage {
       where: { id: id },
       data: {
         ...updateArticleDto,
-        authorId: updateArticleDto.authorId || null,
-        categoryId: updateArticleDto.categoryId || null,
+
+        /*  authorId: updateArticleDto.authorId || null,
+        categoryId: updateArticleDto.categoryId || null,*/
         tags: {
           set: [],
           connectOrCreate:

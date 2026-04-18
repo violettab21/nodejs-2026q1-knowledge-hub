@@ -46,7 +46,7 @@ describe('Refresh (e2e)', () => {
     expect(validate(userId)).toBeTruthy();
     expect(role).toBeDefined();
     expect(typeof role).toBe('string');
-    expect(['admin', 'editor', 'viewer']).toContain(role);
+    expect(['ADMIN', 'EDITOR', 'VIEWER']).toContain(role);
     expect(exp).toBeDefined();
     expect(typeof exp).toBe('number');
     expect(exp).toBeGreaterThan(0);

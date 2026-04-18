@@ -9,8 +9,8 @@ import { JwtService } from '@nestjs/jwt';
 import 'dotenv/config';
 import { StringValue } from 'ms';
 import { UsersService } from 'src/users/users.service';
-import { UserRole } from 'generated/prisma/enums';
 import bcrypt from 'bcryptjs';
+import { UserRole } from 'generated/prisma/enums';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +27,11 @@ export class AuthService {
     }
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (isPasswordCorrect) {
-      const payload = { sub: user.id, login: user.login, role: user.role };
+      const payload = {
+        userId: user.id,
+        login: user.login,
+        role: user.role,
+      };
       const accessToken = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_SECRET,
         expiresIn: `${process.env.JWT_ACCESS_TTL}` as StringValue,
@@ -47,8 +51,8 @@ export class AuthService {
   async signUp(login: string, password: string) {
     const user = await this.storage.getUserByLogin(login);
     if (!user) {
-      const hash = await bcrypt.hash(password, Number(process.env.CRYPT_SALT));
-      const newUser = await this.usersService.create({ login, password: hash });
+      /*  const hash = await bcrypt.hash(password, Number(process.env.CRYPT_SALT));*/
+      const newUser = await this.usersService.create({ login, password });
       return newUser;
     }
 
@@ -58,7 +62,7 @@ export class AuthService {
   async refresh(refreshToken: string) {
     try {
       const validateRefresh: {
-        sub: string;
+        userId: string;
         login: string;
         role: UserRole;
       } = await this.jwtService.verifyAsync(refreshToken, {
@@ -66,16 +70,16 @@ export class AuthService {
         ignoreExpiration: false,
       });
       if (validateRefresh) {
-        const { sub, login, role } = validateRefresh;
+        const { userId, login, role } = validateRefresh;
         const accessToken = await this.jwtService.signAsync(
-          { sub, login, role },
+          { userId, login, role },
           {
             secret: process.env.JWT_SECRET,
             expiresIn: `${process.env.JWT_ACCESS_TTL}` as StringValue,
           },
         );
         const refreshToken = await this.jwtService.signAsync(
-          { sub, login, role },
+          { userId, login, role },
           {
             secret: process.env.JWT_REFRESH_SECRET,
             expiresIn: `${process.env.JWT_REFRESH_TTL}` as StringValue,

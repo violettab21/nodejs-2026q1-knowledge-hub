@@ -23,8 +23,8 @@ import {
   NOT_FOUND_MESSAGE,
 } from 'src/constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
-import { UserRole } from 'generated/prisma/enums';
 import { Roles } from 'src/auth/auth.roles';
+import { UserRole } from 'generated/prisma/enums';
 
 @ApiTags('Category')
 @Controller('category')

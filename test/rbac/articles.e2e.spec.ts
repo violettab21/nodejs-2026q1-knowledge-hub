@@ -11,7 +11,7 @@ import { articlesRoutes } from '../endpoints';
 const createArticleDto = {
   title: 'TEST_RBAC_ARTICLE',
   content: 'Test article for RBAC',
-  status: 'draft',
+  status: 'DRAFT',
   authorId: null,
   categoryId: null,
   tags: [],
@@ -39,7 +39,7 @@ describe('RBAC - Articles (e2e)', () => {
 
     const editorResult = await getUserTokenByRole(
       request,
-      'editor',
+      'EDITOR',
       adminHeaders,
     );
     editorHeaders = { ...headers, Authorization: editorResult.token };
@@ -47,7 +47,7 @@ describe('RBAC - Articles (e2e)', () => {
 
     const viewerResult = await getUserTokenByRole(
       request,
-      'viewer',
+      'VIEWER',
       adminHeaders,
     );
     viewerHeaders = { ...headers, Authorization: viewerResult.token };

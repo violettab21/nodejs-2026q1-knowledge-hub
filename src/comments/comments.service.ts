@@ -55,10 +55,13 @@ export class CommentsService {
 
   async findOne(id: string) {
     const comment = await this.storage.getCommentById(id);
-    return {
-      ...comment,
-      createdAt: Number(comment.createdAt),
-    };
+    if (comment) {
+      return {
+        ...comment,
+        createdAt: Number(comment.createdAt),
+      };
+    }
+    return null;
   }
 
   async remove(id: string) {

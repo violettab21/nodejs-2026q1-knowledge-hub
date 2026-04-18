@@ -4,6 +4,8 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User, UserRole } from 'generated/prisma/client';
+import bcrypt from 'bcryptjs';
+import 'dotenv/config';
 
 @Injectable()
 export class UsersStorage implements IUsersStorage {
@@ -30,10 +32,12 @@ export class UsersStorage implements IUsersStorage {
   }
 
   async createUser(createUserDto: CreateUserDto) {
-    const { role, ...props } = createUserDto;
+    const { role, password, ...props } = createUserDto;
+    const hash = await bcrypt.hash(password, Number(process.env.CRYPT_SALT));
     const newUser = await this.prisma.user.create({
       data: {
         ...props,
+        password: hash,
         role: role || UserRole.VIEWER,
       },
     });

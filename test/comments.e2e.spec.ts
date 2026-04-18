@@ -31,7 +31,7 @@ describe('Comments (e2e)', () => {
       .send({
         title: 'TEST_ARTICLE_FOR_COMMENTS',
         content: 'Test content',
-        status: 'draft',
+        status: 'DRAFT',
         authorId: null,
         categoryId: null,
         tags: [],
@@ -122,7 +122,7 @@ describe('Comments (e2e)', () => {
         .send({
           title: 'ANOTHER_ARTICLE',
           content: 'Another content',
-          status: 'draft',
+          status: 'DRAFT',
           authorId: null,
           categoryId: null,
           tags: [],

@@ -21,13 +21,13 @@ export class PermissionsArticlesGuard implements CanActivate {
     if (user.role === UserRole.EDITOR && req.method !== 'GET') {
       if (articleId) {
         const article = await this.storage.getArticleById(articleId);
-        if (article.authorId !== user.id) {
+        if (article.authorId !== user.userId) {
           return false;
         }
       }
 
       const body = req.body;
-      if (body?.authorId !== user.id) {
+      if (body?.authorId && body?.authorId !== user.userId) {
         return false;
       }
     }

@@ -21,13 +21,13 @@ export class PermissionsCommentsGuard implements CanActivate {
     if (user.role === UserRole.EDITOR && req.method !== 'GET') {
       if (commentId) {
         const comment = await this.storage.getCommentById(commentId);
-        if (comment?.authorId !== user.id) {
+        if (comment?.authorId !== user.userId) {
           return false;
         }
       }
 
       const body = req.body;
-      if (body?.authorId !== user.id) {
+      if (body?.authorId && body?.authorId !== user.userId) {
         return false;
       }
     }

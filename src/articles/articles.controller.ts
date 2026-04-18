@@ -24,9 +24,9 @@ import {
   UNPROCESSED_MESSAGE,
 } from 'src/constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
-import { UserRole } from 'generated/prisma/enums';
 import { Roles } from 'src/auth/auth.roles';
 import { PermissionsArticlesGuard } from 'src/auth/guards/articlePermissions.guard';
+import { UserRole } from 'generated/prisma/enums';
 
 @ApiTags('Article')
 @Controller('article')
