@@ -10,6 +10,7 @@ import {
   Query,
   Put,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -25,6 +26,7 @@ import {
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { UserRole } from 'generated/prisma/enums';
 import { Roles } from 'src/auth/auth.roles';
+import { PermissionsArticlesGuard } from 'src/auth/guards/articlePermissions.guard';
 
 @ApiTags('Article')
 @Controller('article')
@@ -34,6 +36,7 @@ export class ArticlesController {
   @Post()
   @ApiBody({ type: CreateArticleDto })
   @Roles([UserRole.ADMIN, UserRole.EDITOR])
+  @UseGuards(PermissionsArticlesGuard)
   @ApiResponse({
     status: 201,
     type: Article,
@@ -95,6 +98,7 @@ export class ArticlesController {
 
   @Put(':id')
   @Roles([UserRole.ADMIN, UserRole.EDITOR])
+  @UseGuards(PermissionsArticlesGuard)
   @ApiBody({ type: UpdateArticleDto })
   @ApiResponse({
     status: 200,
@@ -134,6 +138,7 @@ export class ArticlesController {
   @Delete(':id')
   @HttpCode(204)
   @Roles([UserRole.ADMIN, UserRole.EDITOR])
+  @UseGuards(PermissionsArticlesGuard)
   @ApiResponse({
     status: 204,
   })

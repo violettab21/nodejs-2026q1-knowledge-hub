@@ -9,6 +9,7 @@ import {
   HttpException,
   HttpStatus,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -24,6 +25,7 @@ import {
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { UserRole } from 'generated/prisma/enums';
 import { Roles } from 'src/auth/auth.roles';
+import { PermissionsCommentsGuard } from 'src/auth/guards/commentsPermissions.guard';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -32,6 +34,7 @@ export class CommentsController {
 
   @Post()
   @Roles([UserRole.ADMIN, UserRole.EDITOR])
+  @UseGuards(PermissionsCommentsGuard)
   @ApiBody({ type: CreateCommentDto })
   @ApiResponse({
     status: 201,
@@ -85,6 +88,7 @@ export class CommentsController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsCommentsGuard)
   @Roles([UserRole.ADMIN, UserRole.EDITOR])
   @HttpCode(204)
   @ApiResponse({
