@@ -23,7 +23,7 @@ export class AuthService {
   async login(login: string, password: string) {
     const user = await this.storage.getUserByLogin(login);
     if (!user) {
-      return null;
+      throw new UnauthorizedException();
     }
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (isPasswordCorrect) {
@@ -51,7 +51,6 @@ export class AuthService {
   async signUp(login: string, password: string) {
     const user = await this.storage.getUserByLogin(login);
     if (!user) {
-      /*  const hash = await bcrypt.hash(password, Number(process.env.CRYPT_SALT));*/
       const newUser = await this.usersService.create({ login, password });
       return newUser;
     }

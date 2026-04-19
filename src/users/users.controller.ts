@@ -10,6 +10,7 @@ import {
   HttpStatus,
   HttpCode,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -26,6 +27,7 @@ import {
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { Roles } from 'src/auth/auth.roles';
 import { UserRole } from 'generated/prisma/enums';
+import { PermissionsUsersGuard } from 'src/auth/guards/usersPermissions.guard';
 
 @ApiTags('User')
 @Controller('user')
@@ -84,7 +86,8 @@ export class UsersController {
   }
 
   @Put(':id')
-  @Roles([UserRole.ADMIN])
+  @Roles([UserRole.ADMIN, UserRole.EDITOR])
+  @UseGuards(PermissionsUsersGuard)
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({
     status: 200,
@@ -109,7 +112,8 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles([UserRole.ADMIN])
+  @Roles([UserRole.ADMIN, UserRole.EDITOR])
+  @UseGuards(PermissionsUsersGuard)
   @HttpCode(204)
   @ApiResponse({
     status: 204,
