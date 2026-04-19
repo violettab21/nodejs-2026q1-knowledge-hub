@@ -17,6 +17,12 @@ git clone {repository URL}
 npm install
 ```
 
+## Generate Prisma
+
+```
+npx prisma generate
+```
+
 ## Running application
 
 ```
@@ -82,6 +88,8 @@ All GET endpoints support optional query parameters for pagination and sorting:
 - If sortBy and order query parameters are not provided, sorting will not be applied even one of parameters provided
 
 ## Testing
+
+Note: make sure that dependencies installed and prisma generated
 
 After application running open new terminal and enter:
 

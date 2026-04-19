@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client';
+import bcrypt from 'bcryptjs';
 const connectionString =
   process.env.MODE?.trim() === 'localhost'
     ? `${process.env.DATABASE_URL_LOCALHOST}`
@@ -37,22 +38,23 @@ const categories = [
 ];
 
 async function main() {
+  const hashAdmin = await bcrypt.hash('12345', Number(process.env.CRYPT_SALT));
   const admin = await prisma.user.upsert({
     where: { login: 'admin_user' },
     update: {},
     create: {
       login: 'admin_user',
-      password: '12345',
+      password: hashAdmin,
       role: 'ADMIN',
     },
   });
-
+  const hashEditor = await bcrypt.hash('54321', Number(process.env.CRYPT_SALT));
   const editor = await prisma.user.upsert({
     where: { login: 'editor_user' },
     update: {},
     create: {
       login: 'editor_user',
-      password: '54321',
+      password: hashEditor,
       role: 'EDITOR',
     },
   });
