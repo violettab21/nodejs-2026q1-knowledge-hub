@@ -3,19 +3,22 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IUsersStorage } from './interfaces/users.interface';
 import { UserResponse } from './entities/user.entity';
-import { getPaginationData } from 'src/helpers/pagination/pagination';
-import { sortData } from 'src/helpers/sorting/sorting';
+import { getPaginationData } from '../helpers/pagination/pagination';
+import { sortData } from '../helpers/sorting/sorting';
 import { PASSWORD_INCORRECT, USER_NOT_FOUND } from './constants/constants';
-import { PrismaClientKnownRequestError } from 'generated/prisma/internal/prismaNamespace';
-import { NOT_FOUND_MESSAGE } from 'src/constants/constants';
+import { PrismaClientKnownRequestError } from '../../generated/prisma/internal/prismaNamespace';
+import { NOT_FOUND_MESSAGE } from '../constants/constants';
 import bcrypt from 'bcryptjs';
+import 'dotenv/config';
 
 @Injectable()
 export class UsersService {
   constructor(@Inject('IUsersStorage') private storage: IUsersStorage) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserResponse> {
-    const user = this.storage.createUser(createUserDto);
+    const { password, ...props } = createUserDto;
+    const hash = await bcrypt.hash(password, Number(process.env.CRYPT_SALT));
+    const user = this.storage.createUser({ ...props, password: hash });
     const { id, login, role, createdAt, updatedAt } = await user;
     return {
       id,
@@ -76,6 +79,7 @@ export class UsersService {
         updateUserDto.oldPassword,
         user.password,
       );
+      console.log('isPasswordCorrect', isPasswordCorrect);
       if (isPasswordCorrect) {
         const updatedUser = await this.storage.updateUser(id, updateUserDto);
         const { id: userId, login, role, createdAt, updatedAt } = updatedUser;
