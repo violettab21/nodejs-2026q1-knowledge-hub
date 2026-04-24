@@ -1,5 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { UserRole } from 'generated/prisma/enums';
+import { UserRole } from '../../../generated/prisma/enums';
 
 @Injectable()
 export class PermissionsUsersGuard implements CanActivate {

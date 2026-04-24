@@ -7,7 +7,6 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import bcrypt from 'bcryptjs';
 import { UsersService } from '../../src/users/users.service';
-import { access } from 'fs';
 import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 
 describe('AuthService', () => {

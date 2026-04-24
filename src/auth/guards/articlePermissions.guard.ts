@@ -4,8 +4,8 @@ import {
   ExecutionContext,
   Inject,
 } from '@nestjs/common';
-import { UserRole } from 'generated/prisma/enums';
-import { IArticlesStorage } from 'src/articles/interfaces/articles.interface';
+import { UserRole } from '../../../generated/prisma/enums';
+import { IArticlesStorage } from '../../articles/interfaces/articles.interface';
 
 @Injectable()
 export class PermissionsArticlesGuard implements CanActivate {

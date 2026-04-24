@@ -4,8 +4,8 @@ import {
   ExecutionContext,
   Inject,
 } from '@nestjs/common';
-import { UserRole } from 'generated/prisma/enums';
-import { ICommentsStorage } from 'src/comments/interfaces/comments.interface';
+import { UserRole } from '../../../generated/prisma/enums';
+import { ICommentsStorage } from '../../comments/interfaces/comments.interface';
 
 @Injectable()
 export class PermissionsCommentsGuard implements CanActivate {
