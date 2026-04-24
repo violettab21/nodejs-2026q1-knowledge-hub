@@ -7,7 +7,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { ArticleStatus } from 'generated/prisma/enums';
+import { ArticleStatus } from '../../../generated/prisma/enums';
 
 export class CreateArticleDto {
   @ApiProperty({

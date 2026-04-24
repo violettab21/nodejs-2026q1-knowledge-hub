@@ -9,7 +9,7 @@ import {
   Min,
 } from 'class-validator';
 import { sortBy } from '../constants/constants';
-import { ArticleStatus } from 'generated/prisma/enums';
+import { ArticleStatus } from '../../../generated/prisma/enums';
 
 export class ArticleParams {
   @ApiProperty({
@@ -27,6 +27,7 @@ export class ArticleQueryParams {
     required: false,
   })
   @IsOptional()
+  @IsIn(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
   status?: ArticleStatus;
   @ApiProperty({
     type: String,
