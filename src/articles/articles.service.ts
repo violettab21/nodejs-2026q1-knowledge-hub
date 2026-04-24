@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { IArticlesStorage } from './interfaces/articles.interface';
-import { getPaginationData } from 'src/helpers/pagination/pagination';
-import { sortData } from 'src/helpers/sorting/sorting';
-import { ArticleStatus } from 'generated/prisma/enums';
+import { getPaginationData } from '../helpers/pagination/pagination';
+import { sortData } from '../helpers/sorting/sorting';
+import { ArticleStatus } from '../../generated/prisma/enums';
 
 @Injectable()
 export class ArticlesService {
