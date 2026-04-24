@@ -4,13 +4,13 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { IUsersStorage } from 'src/users/interfaces/users.interface';
+import { IUsersStorage } from '../users/interfaces/users.interface';
 import { JwtService } from '@nestjs/jwt';
 import 'dotenv/config';
 import { StringValue } from 'ms';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import bcrypt from 'bcryptjs';
-import { UserRole } from 'generated/prisma/enums';
+import { UserRole } from '../../generated/prisma/enums';
 
 @Injectable()
 export class AuthService {
