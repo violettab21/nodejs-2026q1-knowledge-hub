@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { ICommentsStorage } from './interfaces/comments.interface';
-import { getPaginationData } from 'src/helpers/pagination/pagination';
-import { sortData } from 'src/helpers/sorting/sorting';
-import { PrismaClientKnownRequestError } from 'generated/prisma/internal/prismaNamespace';
+import { getPaginationData } from '../helpers/pagination/pagination';
+import { sortData } from '../helpers/sorting/sorting';
+import { PrismaClientKnownRequestError } from '../../generated/prisma/internal/prismaNamespace';
 
 @Injectable()
 export class CommentsService {

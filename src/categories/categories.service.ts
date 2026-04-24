@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ICategoriesStorage } from './interfaces/categories.interface';
-import { getPaginationData } from 'src/helpers/pagination/pagination';
-import { sortData } from 'src/helpers/sorting/sorting';
+import { getPaginationData } from '../helpers/pagination/pagination';
+import { sortData } from '../helpers/sorting/sorting';
 
 @Injectable()
 export class CategoriesService {
