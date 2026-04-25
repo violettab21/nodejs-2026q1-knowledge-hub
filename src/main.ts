@@ -6,8 +6,14 @@ import { dump } from 'js-yaml';
 import { writeFile } from 'node:fs/promises';
 import 'dotenv/config';
 
+type Level = 'log' | 'debug' | 'warn' | 'error' | 'verbose';
+
+const level = (`${process.env.LOG_LEVEL}` as Level) || 'log';
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: [level],
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
