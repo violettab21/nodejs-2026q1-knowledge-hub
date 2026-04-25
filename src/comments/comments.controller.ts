@@ -21,11 +21,11 @@ import {
   INTERNAL_ERROR_MESSAGE,
   NOT_FOUND_MESSAGE,
   UNPROCESSED_MESSAGE,
-} from 'src/constants/constants';
+} from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
-import { Roles } from 'src/auth/auth.roles';
-import { PermissionsCommentsGuard } from 'src/auth/guards/commentsPermissions.guard';
-import { UserRole } from 'generated/prisma/enums';
+import { Roles } from '../auth/auth.roles';
+import { PermissionsCommentsGuard } from '../auth/guards/commentsPermissions.guard';
+import { UserRole } from '../../generated/prisma/enums';
 
 @ApiTags('Comment')
 @Controller('comment')

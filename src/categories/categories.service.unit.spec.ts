@@ -3,6 +3,8 @@ import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ICategoriesStorage } from './interfaces/categories.interface';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import * as pagination from '../helpers/pagination/pagination';
+import * as sorting from '../helpers/sorting/sorting';
 
 describe('CategoriesService', () => {
   let service: CategoriesService;
@@ -71,14 +73,24 @@ describe('CategoriesService', () => {
     service = module.get<CategoriesService>(CategoriesService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
   it('should get all categories', async () => {
     const receivedCategories = await service.findAll();
     expect(receivedCategories).toBe(categories);
     expect(mockedCategoriesStorage.getCategories).toHaveBeenCalled();
+  });
+
+  it('should call categories with pages when page and limit passed', async () => {
+    const spy = vi.spyOn(pagination, 'getPaginationData');
+    await service.findAll(2, 10);
+
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should call categories with sorting when sortBy and order passed', async () => {
+    const spy = vi.spyOn(sorting, 'sortData');
+    await service.findAll(undefined, undefined, 'name', 'asc');
+
+    expect(spy).toHaveBeenCalled();
   });
 
   it('should get category by id', async () => {

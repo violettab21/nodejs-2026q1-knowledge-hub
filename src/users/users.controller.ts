@@ -23,11 +23,11 @@ import {
   FORBIDDEN_MESSAGE,
   INTERNAL_ERROR_MESSAGE,
   NOT_FOUND_MESSAGE,
-} from 'src/constants/constants';
+} from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
-import { Roles } from 'src/auth/auth.roles';
-import { UserRole } from 'generated/prisma/enums';
-import { PermissionsUsersGuard } from 'src/auth/guards/usersPermissions.guard';
+import { Roles } from '../auth/auth.roles';
+import { UserRole } from '../../generated/prisma/enums';
+import { PermissionsUsersGuard } from '../auth/guards/usersPermissions.guard';
 
 @ApiTags('User')
 @Controller('user')

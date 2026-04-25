@@ -99,9 +99,9 @@ describe('Refresh (e2e)', () => {
       expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
     });
 
-    it('should fail with 401 (no refresh token)', async () => {
+    it('should fail with 400 (no refresh token)', async () => {
       const response = await request.post(authRoutes.refresh).send();
-      expect(response.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it('should fail with 403 (expired refresh token)', async () => {

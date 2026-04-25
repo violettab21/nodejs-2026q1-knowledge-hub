@@ -7,7 +7,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { BAD_REQUEST_MESSAGE } from 'src/constants/constants';
+import { BAD_REQUEST_MESSAGE } from '../constants/constants';
 import { SignUpDTO } from './dto/signUpDTO.dto';
 import { RefreshDTO } from './dto/refreshDTO.dto';
 import { Public } from './auth.public';

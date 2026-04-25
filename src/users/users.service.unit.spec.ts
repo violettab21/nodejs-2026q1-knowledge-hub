@@ -6,6 +6,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import bcrypt from 'bcryptjs';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PASSWORD_INCORRECT, USER_NOT_FOUND } from './constants/constants';
+import * as pagination from '../helpers/pagination/pagination';
+import * as sorting from '../helpers/sorting/sorting';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { NOT_FOUND_MESSAGE } from '../constants/constants';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -98,6 +102,20 @@ describe('UsersService', () => {
     expect('password' in receivedUsers[0]).toBe(false);
   });
 
+  it('should call users with pages when page and limit passed', async () => {
+    const spy = vi.spyOn(pagination, 'getPaginationData');
+    await service.findAll(2, 10);
+
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should call users with sorting when sortBy and order passed', async () => {
+    const spy = vi.spyOn(sorting, 'sortData');
+    await service.findAll(undefined, undefined, 'content', 'asc');
+
+    expect(spy).toHaveBeenCalled();
+  });
+
   it('should get one user by id', async () => {
     const receivedUser = await service.findOne(
       '9121d4bb-3e75-41da-9863-5ac7b1dfcfed',
@@ -107,6 +125,15 @@ describe('UsersService', () => {
     );
     expect(receivedUser.login).toEqual(users[0].login);
     expect('password' in receivedUser).toBe(false);
+  });
+
+  it('should return null if no user found', async () => {
+    mockedUsersStorage.getUserById.mockResolvedValueOnce(null);
+    const receivedUser = await service.findOne(
+      '9121d4bb-3e75-41da-9863-5ac7b1dfcfed',
+    );
+
+    expect(receivedUser).toBeNull();
   });
 
   it('should create user', async () => {
@@ -156,7 +183,7 @@ describe('UsersService', () => {
     expect(updUser.message).toBe(PASSWORD_INCORRECT);
   });
 
-  it('should return error is user is not found', async () => {
+  it('should return error if user is not found', async () => {
     mockedUsersStorage.getUserById.mockResolvedValueOnce(null);
 
     const updUser = await service.update(
@@ -178,5 +205,18 @@ describe('UsersService', () => {
     expect('password' in delUser).toBe(false);
     expect('id' in delUser).toBe(true);
     expect('role' in delUser).toBe(true);
+  });
+
+  it('should throw error if user not found', async () => {
+    mockedUsersStorage.removeUser.mockRejectedValueOnce(
+      new PrismaClientKnownRequestError('message', {
+        code: 'P2025',
+        clientVersion: '1',
+      }),
+    );
+
+    await expect(() =>
+      service.remove('9121d4bb-3e75-41da-9863-5ac7b1dfcfed'),
+    ).rejects.toThrow(new Error(NOT_FOUND_MESSAGE));
   });
 });

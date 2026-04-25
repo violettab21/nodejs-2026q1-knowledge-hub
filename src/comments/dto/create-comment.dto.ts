@@ -28,5 +28,5 @@ export class CreateCommentDto {
   })
   @IsOptional()
   @IsUUID()
-  authorId: string | null;
+  authorId?: string | null;
 }

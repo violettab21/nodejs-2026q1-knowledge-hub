@@ -22,11 +22,11 @@ import {
   BAD_REQUEST_MESSAGE,
   NOT_FOUND_MESSAGE,
   UNPROCESSED_MESSAGE,
-} from 'src/constants/constants';
+} from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
-import { Roles } from 'src/auth/auth.roles';
-import { PermissionsArticlesGuard } from 'src/auth/guards/articlePermissions.guard';
-import { UserRole } from 'generated/prisma/enums';
+import { Roles } from '../auth/auth.roles';
+import { PermissionsArticlesGuard } from '../auth/guards/articlePermissions.guard';
+import { UserRole } from '../../generated/prisma/enums';
 
 @ApiTags('Article')
 @Controller('article')
@@ -147,9 +147,6 @@ export class ArticlesController {
   async remove(@Param() params: ArticleParams) {
     try {
       const deletedArticle = await this.articlesService.remove(params.id);
-      if (!deletedArticle) {
-        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
-      }
       return deletedArticle;
     } catch (err) {
       if (err instanceof PrismaClientKnownRequestError) {

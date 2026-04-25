@@ -2,6 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { ICommentsStorage } from './interfaces/comments.interface';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import * as pagination from '../helpers/pagination/pagination';
+import * as sorting from '../helpers/sorting/sorting';
 
 describe('CommentsService', () => {
   let service: CommentsService;
@@ -87,6 +90,26 @@ describe('CommentsService', () => {
     expect(mockedCommentsStorage.getComments).toHaveBeenCalled();
   });
 
+  it('should call comment with pages when page and limit passed', async () => {
+    const spy = vi.spyOn(pagination, 'getPaginationData');
+    await service.findAll('ccc7b51f-48ef-4bb8-9026-9301b394a01c', 2, 10);
+
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should call categories with sorting when sortBy and order passed', async () => {
+    const spy = vi.spyOn(sorting, 'sortData');
+    await service.findAll(
+      'ccc7b51f-48ef-4bb8-9026-9301b394a01c',
+      undefined,
+      undefined,
+      'content',
+      'asc',
+    );
+
+    expect(spy).toHaveBeenCalled();
+  });
+
   it('should get comment by Id', async () => {
     const id = 'e219c6b3-5242-4c66-8775-6bf26a301fb0';
     const receivedComment = await service.findOne(id);
@@ -109,6 +132,30 @@ describe('CommentsService', () => {
     expect('articleId' in comm).toBe(true);
     expect(mockedCommentsStorage.createComment).toHaveBeenCalledWith(
       newTestComment,
+    );
+  });
+
+  it('should throw an error when prisma error caught related to author id', async () => {
+    mockedCommentsStorage.createComment.mockRejectedValue(
+      new PrismaClientKnownRequestError('authorId', {
+        code: 'P2003',
+        clientVersion: '1',
+      }),
+    );
+    await expect(() => service.create(newTestComment)).rejects.toThrow(
+      new Error('authorId'),
+    );
+  });
+
+  it('should throw an error when prisma error caught related to articleId id', async () => {
+    mockedCommentsStorage.createComment.mockRejectedValue(
+      new PrismaClientKnownRequestError('articleId', {
+        code: 'P2003',
+        clientVersion: '1',
+      }),
+    );
+    await expect(() => service.create(newTestComment)).rejects.toThrow(
+      new Error('articleId'),
     );
   });
 

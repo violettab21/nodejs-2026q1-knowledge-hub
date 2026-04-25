@@ -37,7 +37,7 @@ export class UsersStorage implements IUsersStorage {
     const newUser = await this.prisma.user.create({
       data: {
         ...props,
-        password: hash,
+        password: password,
         role: role || UserRole.VIEWER,
       },
     });

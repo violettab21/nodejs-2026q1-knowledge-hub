@@ -21,10 +21,10 @@ import {
   BAD_REQUEST_MESSAGE,
   INTERNAL_ERROR_MESSAGE,
   NOT_FOUND_MESSAGE,
-} from 'src/constants/constants';
+} from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
-import { Roles } from 'src/auth/auth.roles';
-import { UserRole } from 'generated/prisma/enums';
+import { Roles } from '../auth/auth.roles';
+import { UserRole } from '../../generated/prisma/enums';
 
 @ApiTags('Category')
 @Controller('category')

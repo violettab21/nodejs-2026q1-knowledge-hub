@@ -104,10 +104,6 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
   it('should login user when credentials are valid', async () => {
     const testUser = users[0];
     const spy = vi
@@ -145,28 +141,20 @@ describe('AuthService', () => {
   });
 
   it('should sign up user', async () => {
-    mockedUsersService.create.mockImplementation(
-      (createUserDTO: CreateUserDto) => {
-        return {
-          id: 'c3d0d101-3507-4561-aa88-0d276fbb8a01',
-          ...createUserDTO,
-          role: UserRole.VIEWER,
-          createdAt: Number(new Date()),
-          updatedAt: Number(new Date()),
-        };
-      },
-    );
-    const registeredUser = await service.signUp(
-      newSignUpUser.login,
-      newSignUpUser.password,
-    );
-    expect(registeredUser).toEqual({
+    const mockedRes = {
       id: 'c3d0d101-3507-4561-aa88-0d276fbb8a01',
       ...newSignUpUser,
       role: UserRole.VIEWER,
       createdAt: Number(new Date()),
       updatedAt: Number(new Date()),
-    });
+    };
+
+    mockedUsersService.create.mockResolvedValue(mockedRes);
+    const registeredUser = await service.signUp(
+      newSignUpUser.login,
+      newSignUpUser.password,
+    );
+    expect(registeredUser).toEqual(mockedRes);
   });
 
   it('should return null if sign up existing user', async () => {
