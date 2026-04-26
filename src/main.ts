@@ -5,6 +5,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { dump } from 'js-yaml';
 import { writeFile } from 'node:fs/promises';
 import 'dotenv/config';
+import { HttpExceptionFilter } from './http-exception.filter';
 
 type Level = 'log' | 'debug' | 'warn' | 'error' | 'verbose';
 
@@ -21,6 +22,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.useGlobalFilters(new HttpExceptionFilter());
   const config = new DocumentBuilder()
     .setTitle('Knowledge Hub')
     .setDescription('The Knowledge Hub API description')

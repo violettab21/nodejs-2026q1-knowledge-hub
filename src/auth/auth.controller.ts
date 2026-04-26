@@ -1,17 +1,10 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { BAD_REQUEST_MESSAGE } from '../constants/constants';
 import { SignUpDTO } from './dto/signUpDTO.dto';
 import { RefreshDTO } from './dto/refreshDTO.dto';
 import { Public } from './auth.public';
 import { LoginDTO } from './dto/loginDTO.dto';
+import { ValidationError } from 'src/errors/ValidationError';
 
 @Controller('auth')
 export class AuthController {
@@ -29,7 +22,7 @@ export class AuthController {
       if (user) {
         return user;
       }
-      throw new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
+      throw new ValidationError();
     } catch (err) {
       throw err;
     }
@@ -47,7 +40,7 @@ export class AuthController {
       if (user) {
         return user;
       }
-      throw new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
+      throw new ValidationError('User already exists');
     } catch (err) {
       throw err;
     }
