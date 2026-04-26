@@ -6,6 +6,8 @@ import { dump } from 'js-yaml';
 import { writeFile } from 'node:fs/promises';
 import 'dotenv/config';
 import { HttpExceptionFilter } from './http-exception.filter';
+import { PrismaService } from './prisma/prisma.service';
+import { Logger } from '@nestjs/common';
 
 type Level = 'log' | 'debug' | 'warn' | 'error' | 'verbose';
 
@@ -15,6 +17,22 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: [level],
   });
+
+  const db = app.get(PrismaService);
+  process.on('uncaughtException', async (error) => {
+    Logger.error(error.message, error.stack);
+    await app.close();
+    await db.closeConnection();
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection ', async (error) => {
+    Logger.error(error.message, error.stack);
+    await app.close();
+    await db.closeConnection();
+    process.exit(1);
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -35,4 +53,5 @@ async function bootstrap() {
   SwaggerModule.setup('/doc', app, documentFactory);
   await app.listen(process.env.PORT, '0.0.0.0');
 }
+
 bootstrap();

@@ -14,10 +14,10 @@ import { ValidationError } from './errors/ValidationError';
 @Catch(Error)
 export class HttpExceptionFilter implements ExceptionFilter {
   logger = new Logger();
+
   catch(exception: unknown, host: ArgumentsHost) {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
-
     if (
       exception instanceof ForbiddenError ||
       exception instanceof NotFoundError ||
@@ -25,8 +25,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       exception instanceof ValidationError
     ) {
       const status = exception.statusCode;
-      console.log('errorText', exception.errorText);
+
       this.logger.error(exception.message, exception.stack);
+
       response.status(status).json({
         statusCode: status,
         error: exception.errorText,
@@ -34,7 +35,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       });
     } else if (exception instanceof HttpException) {
       const status = exception.getStatus();
+
       this.logger.error(exception.message, exception.stack);
+
       if (typeof exception.getResponse() === 'string') {
         response.status(status).json({
           statusCode: status,
@@ -48,6 +51,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       }
     } else if (exception instanceof Error) {
       this.logger.error(exception.message, exception.stack);
+
       const status = 500;
       response.status(status).json({
         statusCode: status,
