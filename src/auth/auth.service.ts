@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { IUsersStorage } from '../users/interfaces/users.interface';
 import { JwtService } from '@nestjs/jwt';
 import 'dotenv/config';
@@ -11,6 +6,12 @@ import { StringValue } from 'ms';
 import { UsersService } from '../users/users.service';
 import bcrypt from 'bcryptjs';
 import { UserRole } from '../../generated/prisma/enums';
+import { UnauthorizedError } from '../errors/UnauthorizedError';
+import { ForbiddenError } from '../errors/ForbiddenError';
+import {
+  INVALID_CREDENTIALS,
+  INVALID_REFRESH_TOKEN,
+} from '../constants/constants';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
   async login(login: string, password: string) {
     const user = await this.storage.getUserByLogin(login);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedError(`User with login ${login} not found`);
     }
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (isPasswordCorrect) {
@@ -45,7 +46,7 @@ export class AuthService {
         refreshToken,
       };
     }
-    throw new UnauthorizedException();
+    throw new UnauthorizedError(INVALID_CREDENTIALS);
   }
 
   async signUp(login: string, password: string) {
@@ -90,7 +91,7 @@ export class AuthService {
         };
       }
     } catch (err) {
-      throw new ForbiddenException('Refresh token is invalid or expired');
+      throw new ForbiddenError(INVALID_REFRESH_TOKEN);
     }
   }
 }

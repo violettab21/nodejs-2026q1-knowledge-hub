@@ -5,8 +5,6 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User, UserRole } from 'generated/prisma/client';
 
-
-
 @Injectable()
 export class UsersStorage implements IUsersStorage {
   constructor(private prisma: PrismaService) {}

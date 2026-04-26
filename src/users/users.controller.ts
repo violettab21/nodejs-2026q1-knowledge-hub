@@ -6,8 +6,6 @@ import {
   Put,
   Param,
   Delete,
-  HttpException,
-  HttpStatus,
   HttpCode,
   Query,
   UseGuards,
@@ -21,13 +19,16 @@ import { UserResponse } from './entities/user.entity';
 import {
   BAD_REQUEST_MESSAGE,
   FORBIDDEN_MESSAGE,
-  INTERNAL_ERROR_MESSAGE,
   NOT_FOUND_MESSAGE,
+  USER_EXISTS,
 } from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { Roles } from '../auth/auth.roles';
 import { UserRole } from '../../generated/prisma/enums';
 import { PermissionsUsersGuard } from '../auth/guards/usersPermissions.guard';
+import { ValidationError } from '../errors/ValidationError';
+import { NotFoundError } from '../errors/NotFoundError';
+import { ForbiddenError } from '../errors/ForbiddenError';
 
 @ApiTags('User')
 @Controller('user')
@@ -50,12 +51,8 @@ export class UsersController {
         err instanceof PrismaClientKnownRequestError &&
         err.code === 'P2002'
       ) {
-        throw new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
-      } else
-        throw new HttpException(
-          INTERNAL_ERROR_MESSAGE,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        throw new ValidationError(USER_EXISTS);
+      } else throw err;
     }
   }
 
@@ -82,7 +79,7 @@ export class UsersController {
     if (user) {
       return user;
     }
-    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+    throw new NotFoundError(`User with id ${params.id} is not found`);
   }
 
   @Put(':id')
@@ -103,9 +100,9 @@ export class UsersController {
     const user = await this.usersService.update(params.id, updateUserDto);
     if ('error' in user) {
       if (user.field === 'oldPassword') {
-        throw new HttpException(user.message, HttpStatus.FORBIDDEN);
+        throw new ForbiddenError(user.message);
       }
-      throw new HttpException(user.message, HttpStatus.NOT_FOUND);
+      throw new NotFoundError(`User with id ${params.id} is not found`);
     }
 
     return user;
@@ -126,7 +123,7 @@ export class UsersController {
       return user;
     } catch (err) {
       if (err instanceof Error && err.message === NOT_FOUND_MESSAGE) {
-        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+        throw new NotFoundError(`User with id ${params.id} is not found`);
       }
     }
   }

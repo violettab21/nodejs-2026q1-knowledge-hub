@@ -3,8 +3,13 @@ import { ArticlesController } from './articles.controller';
 import { ArticlesService } from './articles.service';
 import { ArticleStatus } from '../../generated/prisma/enums';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { BAD_REQUEST_MESSAGE, NOT_FOUND_MESSAGE } from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { NotFoundError } from '../errors/NotFoundError';
+import { ValidationError } from '../errors/ValidationError';
+import {
+  INVALID_ARTICLE,
+  INVALID_CATEGORY_AUTHOR,
+} from '../constants/constants';
 
 describe('ArticlesController', () => {
   let controller: ArticlesController;
@@ -53,10 +58,6 @@ describe('ArticlesController', () => {
     service = module.get<ArticlesService>(ArticlesService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
   describe('get articles', () => {
     it('should return articles', async () => {
       vi.spyOn(service, 'findAll').mockResolvedValue(articles);
@@ -73,7 +74,7 @@ describe('ArticlesController', () => {
       const id = '1e27b6f3-fa40-44e8-8baf-9ede2f71249c';
       vi.spyOn(service, 'findOne').mockResolvedValue(null);
       await expect(() => controller.findOne({ id })).rejects.toThrow(
-        new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
+        new NotFoundError(`Article with id ${id} is not found`),
       );
     });
   });
@@ -116,7 +117,7 @@ describe('ArticlesController', () => {
       );
       await expect(() => controller.create(newArticle)).rejects.toThrow(
         new HttpException(
-          'Non existing category or author',
+          INVALID_CATEGORY_AUTHOR,
           HttpStatus.UNPROCESSABLE_ENTITY,
         ),
       );
@@ -136,7 +137,7 @@ describe('ArticlesController', () => {
         }),
       );
       await expect(() => controller.create(newArticle)).rejects.toThrow(
-        new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST),
+        new ValidationError(INVALID_ARTICLE),
       );
     });
   });
@@ -170,6 +171,7 @@ describe('ArticlesController', () => {
     });
 
     it('should throw an error if article not found', async () => {
+      const id = '1e27b6f3-fa40-44e8-8baf-9ede2f71249c';
       const newArticle = {
         title: 'Article1',
         content: 'Article1 content',
@@ -182,13 +184,8 @@ describe('ArticlesController', () => {
           clientVersion: '1',
         }),
       );
-      await expect(() =>
-        controller.update(
-          { id: '1e27b6f3-fa40-44e8-8baf-9ede2f71249c' },
-          newArticle,
-        ),
-      ).rejects.toThrow(
-        new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
+      await expect(() => controller.update({ id }, newArticle)).rejects.toThrow(
+        new NotFoundError(`Article with id ${id} is not found`),
       );
     });
 
@@ -210,9 +207,7 @@ describe('ArticlesController', () => {
           { id: '1e27b6f3-fa40-44e8-8baf-9ede2f71249c' },
           newArticle,
         ),
-      ).rejects.toThrow(
-        new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST),
-      );
+      ).rejects.toThrow(new ValidationError('Invalid Article Data'));
     });
 
     it('should throw an error if prisma foreign key error occurred', async () => {
@@ -235,7 +230,7 @@ describe('ArticlesController', () => {
         ),
       ).rejects.toThrow(
         new HttpException(
-          'Non existing category or author',
+          INVALID_CATEGORY_AUTHOR,
           HttpStatus.UNPROCESSABLE_ENTITY,
         ),
       );
@@ -262,16 +257,15 @@ describe('ArticlesController', () => {
     });
 
     it('should throw an error if article not found', async () => {
+      const id = '1e27b6f3-fa40-44e8-8baf-9ede2f71249c';
       vi.spyOn(service, 'remove').mockRejectedValue(
         new PrismaClientKnownRequestError('message', {
           code: 'P2025',
           clientVersion: '1',
         }),
       );
-      await expect(() =>
-        controller.remove({ id: '1e27b6f3-fa40-44e8-8baf-9ede2f71249c' }),
-      ).rejects.toThrow(
-        new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
+      await expect(() => controller.remove({ id })).rejects.toThrow(
+        new NotFoundError(`Article with id ${id} is not found`),
       );
     });
   });

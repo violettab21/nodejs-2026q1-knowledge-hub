@@ -3,7 +3,6 @@ import { ArticlesService } from './articles.service';
 import { IArticlesStorage } from './interfaces/articles.interface';
 import { ArticleStatus } from '../../generated/prisma/enums';
 import { CreateArticleDto } from './dto/create-article.dto';
-import { UpdateArticleDto } from './dto/update-article.dto';
 import * as pagination from '../helpers/pagination/pagination';
 import * as sorting from '../helpers/sorting/sorting';
 
@@ -59,11 +58,7 @@ describe('ArticlesService', () => {
       .mockImplementation((articleId) =>
         articles.find((article) => article.id === articleId),
       ),
-    filterArticles: vi
-      .fn()
-      .mockImplementation(
-        (status?: ArticleStatus, categoryId?: string, tag?: string) => articles,
-      ),
+    filterArticles: vi.fn(),
     createArticle: vi
       .fn()
       .mockImplementation((createArticleDTO: CreateArticleDto) => {
@@ -81,14 +76,7 @@ describe('ArticlesService', () => {
           updatedAt: new Date(),
         };
       }),
-    updateArticle: vi
-      .fn()
-      .mockImplementation((id, updateArticleDto: UpdateArticleDto) => {
-        const article = articles.find((article) => article.id === id);
-        return {
-          ...article,
-        };
-      }),
+    updateArticle: vi.fn(),
     removeArticle: vi.fn().mockImplementation((id) => {
       const article = articles.find((article) => article.id === id);
       return {
@@ -111,17 +99,15 @@ describe('ArticlesService', () => {
     service = module.get<ArticlesService>(ArticlesService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
   it('should get all articles', async () => {
+    mockedArticlesStorage.filterArticles.mockResolvedValueOnce(articles);
     await service.findAll();
 
     expect(mockedArticlesStorage.filterArticles).toHaveBeenCalled();
   });
 
   it('should call articles with pages when page and limit passed', async () => {
+    mockedArticlesStorage.filterArticles.mockResolvedValueOnce(articles);
     const spy = vi.spyOn(pagination, 'getPaginationData');
     await service.findAll(undefined, undefined, undefined, 2, 10);
 
@@ -129,6 +115,7 @@ describe('ArticlesService', () => {
   });
 
   it('should call articles with sorting when sortBy and order passed', async () => {
+    mockedArticlesStorage.filterArticles.mockResolvedValueOnce(articles);
     const spy = vi.spyOn(sorting, 'sortData');
     await service.findAll(
       undefined,
@@ -184,6 +171,26 @@ describe('ArticlesService', () => {
   });
 
   it('should update article', async () => {
+    mockedArticlesStorage.updateArticle.mockResolvedValueOnce({
+      id: '1e27b6f3-fa40-44e8-8baf-9ede2f71249c',
+      title: 'Article1',
+      content: 'Article1 content',
+      status: ArticleStatus.DRAFT,
+      authorId: null,
+      categoryId: null,
+      createAt: new Date(),
+      updatedAt: new Date(),
+      tags: [
+        {
+          name: 'tag1',
+          id: '1',
+        },
+        {
+          name: 'tag2',
+          id: '2',
+        },
+      ],
+    });
     const id = '1e27b6f3-fa40-44e8-8baf-9ede2f71249c';
     await service.update(id, newTestArticle);
 

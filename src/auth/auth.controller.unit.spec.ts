@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BAD_REQUEST_MESSAGE } from '../constants/constants';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserRole } from '../../generated/prisma/enums';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import { ValidationError } from '../errors/ValidationError';
+import { USER_EXISTS } from '../constants/constants';
 
 describe('CategoriesController', () => {
   let controller: AuthController;
@@ -86,9 +86,7 @@ describe('CategoriesController', () => {
       vi.spyOn(service, 'signUp').mockResolvedValue(null);
       await expect(() =>
         controller.signUp({ login: 'test', password: 'test' }),
-      ).rejects.toThrow(
-        new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST),
-      );
+      ).rejects.toThrow(new ValidationError(USER_EXISTS));
     });
   });
 

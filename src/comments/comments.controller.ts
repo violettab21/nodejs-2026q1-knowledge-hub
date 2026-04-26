@@ -18,7 +18,6 @@ import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Comment } from './entities/comment.entity';
 import {
   BAD_REQUEST_MESSAGE,
-  INTERNAL_ERROR_MESSAGE,
   NOT_FOUND_MESSAGE,
   UNPROCESSED_MESSAGE,
 } from '../constants/constants';
@@ -26,6 +25,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { Roles } from '../auth/auth.roles';
 import { PermissionsCommentsGuard } from '../auth/guards/commentsPermissions.guard';
 import { UserRole } from '../../generated/prisma/enums';
+import { NotFoundError } from '../errors/NotFoundError';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -84,7 +84,7 @@ export class CommentsController {
     if (comment) {
       return comment;
     }
-    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+    throw new NotFoundError(`Comment with id ${params.id} is not found`);
   }
 
   @Delete(':id')
@@ -107,12 +107,9 @@ export class CommentsController {
         err instanceof PrismaClientKnownRequestError &&
         err.code === 'P2025'
       ) {
-        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+        throw new NotFoundError(`Comment with id ${params.id} is not found`);
       } else {
-        throw new HttpException(
-          INTERNAL_ERROR_MESSAGE,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        throw err;
       }
     }
   }

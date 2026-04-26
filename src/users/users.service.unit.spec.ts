@@ -4,7 +4,6 @@ import { IUsersStorage } from './interfaces/users.interface';
 import { UserRole } from '../../generated/prisma/enums';
 import { CreateUserDto } from './dto/create-user.dto';
 import bcrypt from 'bcryptjs';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { PASSWORD_INCORRECT, USER_NOT_FOUND } from './constants/constants';
 import * as pagination from '../helpers/pagination/pagination';
 import * as sorting from '../helpers/sorting/sorting';
@@ -61,14 +60,7 @@ describe('UsersService', () => {
         updatedAt: new Date(),
       };
     }),
-    updateUser: vi
-      .fn()
-      .mockImplementation((id, updateUserDto: UpdateUserDto) => {
-        const user = users.find((user) => user.id === id);
-        return {
-          ...user,
-        };
-      }),
+    updateUser: vi.fn(),
     removeUser: vi.fn().mockImplementation((id) => {
       const user = users.find((user) => user.id === id);
       return {
@@ -155,6 +147,14 @@ describe('UsersService', () => {
 
   it('should update user', async () => {
     vi.spyOn(bcrypt, 'compare').mockImplementationOnce(async () => true);
+    mockedUsersStorage.updateUser.mockResolvedValue({
+      id: '9121d4bb-3e75-41da-9863-5ac7b1dfcfed',
+      login: 'TEST_USER1',
+      password: 'hashed password1',
+      role: UserRole.VIEWER,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     const updUser = await service.update(
       '9121d4bb-3e75-41da-9863-5ac7b1dfcfed',

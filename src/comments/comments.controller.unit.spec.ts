@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CommentsController } from './comments.controller';
 import { CommentsService } from './comments.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { NOT_FOUND_MESSAGE } from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { NotFoundError } from '../errors/NotFoundError';
 
 describe('CommentsController', () => {
   let controller: CommentsController;
@@ -44,10 +44,6 @@ describe('CommentsController', () => {
     service = module.get<CommentsService>(CommentsService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
   describe('Get comments', () => {
     it('should return array of comments', async () => {
       vi.spyOn(service, 'findAll').mockResolvedValue(testComments);
@@ -68,11 +64,10 @@ describe('CommentsController', () => {
     });
 
     it('should throw error when comment not found', async () => {
+      const id = 'e219c6b3-5242-4c66-8775-6bf26a301fb0';
       vi.spyOn(service, 'findOne').mockResolvedValue(null);
-      await expect(
-        controller.findOne({ id: 'e219c6b3-5242-4c66-8775-6bf26a301fb0' }),
-      ).rejects.toThrow(
-        new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
+      await expect(controller.findOne({ id })).rejects.toThrow(
+        new NotFoundError(`Comment with id ${id} is not found`),
       );
     });
   });
@@ -125,16 +120,15 @@ describe('CommentsController', () => {
     });
 
     it('should throw error if comment not found', async () => {
+      const id = 'e219c6b3-5242-4c66-8775-6bf26a302fb0';
       vi.spyOn(service, 'remove').mockRejectedValue(
         new PrismaClientKnownRequestError('message', {
           code: 'P2025',
           clientVersion: '1',
         }),
       );
-      await expect(() =>
-        controller.remove({ id: 'e219c6b3-5242-4c66-8775-6bf26a302fb0' }),
-      ).rejects.toThrow(
-        new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
+      await expect(() => controller.remove({ id })).rejects.toThrow(
+        new NotFoundError(`Comment with id ${id} is not found`),
       );
     });
   });

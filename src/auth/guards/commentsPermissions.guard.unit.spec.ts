@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionContext } from '@nestjs/common';
-import { ArticleStatus, UserRole } from '../../../generated/prisma/enums';
-import { PermissionsArticlesGuard } from './articlePermissions.guard';
+import { UserRole } from '../../../generated/prisma/enums';
 import { PermissionsCommentsGuard } from './commentsPermissions.guard';
 import { ICommentsStorage } from 'src/comments/interfaces/comments.interface';
 

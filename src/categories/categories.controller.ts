@@ -5,8 +5,6 @@ import {
   Body,
   Param,
   Delete,
-  HttpException,
-  HttpStatus,
   Put,
   HttpCode,
   Query,
@@ -17,14 +15,11 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryParams, CategoryQueryParams } from './dto/category-params.dto';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Category } from './entities/category.entity';
-import {
-  BAD_REQUEST_MESSAGE,
-  INTERNAL_ERROR_MESSAGE,
-  NOT_FOUND_MESSAGE,
-} from '../constants/constants';
+import { BAD_REQUEST_MESSAGE, NOT_FOUND_MESSAGE } from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { Roles } from '../auth/auth.roles';
 import { UserRole } from '../../generated/prisma/enums';
+import { NotFoundError } from '../errors/NotFoundError';
 
 @ApiTags('Category')
 @Controller('category')
@@ -66,7 +61,7 @@ export class CategoriesController {
     if (category) {
       return category;
     }
-    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+    throw new NotFoundError(`Category with id ${params.id} is not found`);
   }
 
   @Put(':id')
@@ -94,12 +89,9 @@ export class CategoriesController {
         err instanceof PrismaClientKnownRequestError &&
         err.code === 'P2025'
       ) {
-        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+        throw new NotFoundError(`Category with id ${params.id} is not found`);
       } else {
-        throw new HttpException(
-          INTERNAL_ERROR_MESSAGE,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        throw err;
       }
     }
   }
@@ -122,12 +114,9 @@ export class CategoriesController {
         err instanceof PrismaClientKnownRequestError &&
         err.code === 'P2025'
       ) {
-        throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+        throw new NotFoundError(`Category with id ${params.id} is not found`);
       } else {
-        throw new HttpException(
-          INTERNAL_ERROR_MESSAGE,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        throw err;
       }
     }
   }

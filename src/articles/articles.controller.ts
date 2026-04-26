@@ -22,11 +22,15 @@ import {
   BAD_REQUEST_MESSAGE,
   NOT_FOUND_MESSAGE,
   UNPROCESSED_MESSAGE,
+  INVALID_ARTICLE,
+  INVALID_CATEGORY_AUTHOR,
 } from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { Roles } from '../auth/auth.roles';
 import { PermissionsArticlesGuard } from '../auth/guards/articlePermissions.guard';
 import { UserRole } from '../../generated/prisma/enums';
+import { ValidationError } from '../errors/ValidationError';
+import { NotFoundError } from '../errors/NotFoundError';
 
 @ApiTags('Article')
 @Controller('article')
@@ -50,11 +54,11 @@ export class ArticlesController {
     } catch (err) {
       if (err instanceof PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {
-          throw new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
+          throw new ValidationError(INVALID_ARTICLE);
         }
         if (err.code === 'P2003') {
           throw new HttpException(
-            'Non existing category or author',
+            INVALID_CATEGORY_AUTHOR,
             HttpStatus.UNPROCESSABLE_ENTITY,
           );
         }
@@ -93,7 +97,7 @@ export class ArticlesController {
     if (article) {
       return article;
     }
-    throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+    throw new NotFoundError(`Article with id ${params.id} is not found`);
   }
 
   @Put(':id')
@@ -120,16 +124,16 @@ export class ArticlesController {
     } catch (err) {
       if (err instanceof PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {
-          throw new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
+          throw new ValidationError('Invalid Article Data');
         }
         if (err.code === 'P2003') {
           throw new HttpException(
-            'Non existing category or author',
+            INVALID_CATEGORY_AUTHOR,
             HttpStatus.UNPROCESSABLE_ENTITY,
           );
         }
         if (err.code === 'P2025') {
-          throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+          throw new NotFoundError(`Article with id ${params.id} is not found`);
         }
       }
     }
@@ -151,7 +155,7 @@ export class ArticlesController {
     } catch (err) {
       if (err instanceof PrismaClientKnownRequestError) {
         if (err.code === 'P2025') {
-          throw new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+          throw new NotFoundError(`Article with id ${params.id} is not found`);
         }
       }
     }
