@@ -6,8 +6,12 @@ import { StringValue } from 'ms';
 import { UsersService } from '../users/users.service';
 import bcrypt from 'bcryptjs';
 import { UserRole } from '../../generated/prisma/enums';
-import { UnauthorizedError } from 'src/errors/UnauthorizedError';
-import { ForbiddenError } from 'src/errors/ForbiddenError';
+import { UnauthorizedError } from '../errors/UnauthorizedError';
+import { ForbiddenError } from '../errors/ForbiddenError';
+import {
+  INVALID_CREDENTIALS,
+  INVALID_REFRESH_TOKEN,
+} from '../constants/constants';
 
 @Injectable()
 export class AuthService {
@@ -42,7 +46,7 @@ export class AuthService {
         refreshToken,
       };
     }
-    throw new UnauthorizedError(`Invalid credentials`);
+    throw new UnauthorizedError(INVALID_CREDENTIALS);
   }
 
   async signUp(login: string, password: string) {
@@ -87,7 +91,7 @@ export class AuthService {
         };
       }
     } catch (err) {
-      throw new ForbiddenError('Refresh token is invalid or expired');
+      throw new ForbiddenError(INVALID_REFRESH_TOKEN);
     }
   }
 }

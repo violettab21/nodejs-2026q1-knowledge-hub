@@ -19,7 +19,7 @@ import { BAD_REQUEST_MESSAGE, NOT_FOUND_MESSAGE } from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { Roles } from '../auth/auth.roles';
 import { UserRole } from '../../generated/prisma/enums';
-import { NotFoundError } from 'src/errors/NotFoundError';
+import { NotFoundError } from '../errors/NotFoundError';
 
 @ApiTags('Category')
 @Controller('category')

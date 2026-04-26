@@ -4,7 +4,8 @@ import { SignUpDTO } from './dto/signUpDTO.dto';
 import { RefreshDTO } from './dto/refreshDTO.dto';
 import { Public } from './auth.public';
 import { LoginDTO } from './dto/loginDTO.dto';
-import { ValidationError } from 'src/errors/ValidationError';
+import { ValidationError } from '../errors/ValidationError';
+import { USER_EXISTS } from '../constants/constants';
 
 @Controller('auth')
 export class AuthController {
@@ -40,7 +41,7 @@ export class AuthController {
       if (user) {
         return user;
       }
-      throw new ValidationError('User already exists');
+      throw new ValidationError(USER_EXISTS);
     } catch (err) {
       throw err;
     }

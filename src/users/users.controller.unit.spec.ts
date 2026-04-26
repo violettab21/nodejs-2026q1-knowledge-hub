@@ -2,11 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UserRole } from '../../generated/prisma/enums';
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { BAD_REQUEST_MESSAGE, NOT_FOUND_MESSAGE } from '../constants/constants';
-import { CreateUserDto } from './dto/create-user.dto';
+import { NOT_FOUND_MESSAGE, USER_EXISTS } from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { PASSWORD_INCORRECT, USER_NOT_FOUND } from './constants/constants';
+import { NotFoundError } from '../errors/NotFoundError';
+import { ForbiddenError } from '../errors/ForbiddenError';
+import { ValidationError } from '../errors/ValidationError';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -47,10 +48,6 @@ describe('UsersController', () => {
     service = module.get<UsersService>(UsersService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
   it('should return array of users', async () => {
     vi.spyOn(service, 'findAll').mockResolvedValue(testUsers);
     expect(await controller.findAll({})).toBe(testUsers);
@@ -59,19 +56,15 @@ describe('UsersController', () => {
   describe('findOne', () => {
     it('should return user when it is found by id', async () => {
       const id = '9121d4bb-3e75-41da-9863-5ac7b1dfcfed';
-      vi.spyOn(service, 'findOne').mockImplementation(
-        async (id: string) => testUsers[0],
-      );
+      vi.spyOn(service, 'findOne').mockResolvedValue(testUsers[0]);
       expect(await controller.findOne({ id })).toBe(testUsers[0]);
     });
 
     it('should throw error when user is not found', async () => {
       const id = '9121d4bb-3e75-41da-9863-5ac7b1dfcfed';
-      vi.spyOn(service, 'findOne').mockImplementation(
-        async (id: string) => null,
-      );
+      vi.spyOn(service, 'findOne').mockResolvedValue(null);
       await expect(controller.findOne({ id })).rejects.toThrow(
-        new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
+        new NotFoundError(`User with id ${id} is not found`),
       );
     });
   });
@@ -85,9 +78,7 @@ describe('UsersController', () => {
         createdAt: Number(new Date()),
         updatedAt: Number(new Date()),
       };
-      vi.spyOn(service, 'create').mockImplementation(
-        async (createUserDto: CreateUserDto) => newUser,
-      );
+      vi.spyOn(service, 'create').mockResolvedValue(newUser);
       expect(
         await controller.create({
           login: 'TEST_USER1',
@@ -110,9 +101,7 @@ describe('UsersController', () => {
           password: 'pass',
           role: UserRole.VIEWER,
         }),
-      ).rejects.toThrow(
-        new HttpException(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST),
-      );
+      ).rejects.toThrow(new ValidationError(USER_EXISTS));
     });
   });
 
@@ -156,7 +145,7 @@ describe('UsersController', () => {
           { id: '9121d4bb-3e75-41da-9863-5ac7b1dfcfed' },
           updUser,
         ),
-      ).rejects.toThrow(new HttpException(error.message, HttpStatus.FORBIDDEN));
+      ).rejects.toThrow(new ForbiddenError("User's old password incorrect"));
     });
 
     it('should throw error when user not found', async () => {
@@ -176,7 +165,9 @@ describe('UsersController', () => {
           { id: '9121d4bb-3e75-41da-9863-5ac7b1dfcfed' },
           updUser,
         ),
-      ).rejects.toThrow(new HttpException(error.message, HttpStatus.NOT_FOUND));
+      ).rejects.toThrow(
+        new NotFoundError(`User with id ${updUser.id} is not found`),
+      );
     });
   });
 
@@ -197,13 +188,12 @@ describe('UsersController', () => {
     });
 
     it('should throw error when user not found', async () => {
+      const id = '9121d4bb-3e75-41da-9863-5ac7b1dfcfed';
       vi.spyOn(service, 'remove').mockRejectedValue(
         new Error(NOT_FOUND_MESSAGE),
       );
-      await expect(() =>
-        controller.remove({ id: '9121d4bb-3e75-41da-9863-5ac7b1dfcfed' }),
-      ).rejects.toThrow(
-        new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
+      await expect(() => controller.remove({ id })).rejects.toThrow(
+        new NotFoundError(`User with id ${id} is not found`),
       );
     });
   });

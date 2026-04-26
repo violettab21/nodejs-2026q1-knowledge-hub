@@ -4,10 +4,14 @@ import { IUsersStorage } from 'src/users/interfaces/users.interface';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '../../generated/prisma/enums';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import bcrypt from 'bcryptjs';
 import { UsersService } from '../../src/users/users.service';
-import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedError } from '../errors/UnauthorizedError';
+import { ForbiddenError } from '../errors/ForbiddenError';
+import {
+  INVALID_CREDENTIALS,
+  INVALID_REFRESH_TOKEN,
+} from '../constants/constants';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -55,14 +59,7 @@ describe('AuthService', () => {
         updatedAt: new Date(),
       };
     }),
-    updateUser: vi
-      .fn()
-      .mockImplementation((id, updateUserDto: UpdateUserDto) => {
-        const user = users.find((user) => user.id === id);
-        return {
-          ...user,
-        };
-      }),
+    updateUser: vi.fn(),
     removeUser: vi.fn().mockImplementation((id) => {
       const user = users.find((user) => user.id === id);
       return {
@@ -72,9 +69,7 @@ describe('AuthService', () => {
   } as vi.mocked<IUsersStorage>;
 
   const mockedJWTService = {
-    signAsync: vi
-      .fn()
-      .mockImplementation((payload, options) => 'generated token'),
+    signAsync: vi.fn(),
     verifyAsync: vi.fn(),
   };
 
@@ -124,7 +119,9 @@ describe('AuthService', () => {
 
     await expect(
       service.login(testUser.login, testUser.password),
-    ).rejects.toThrow(new UnauthorizedException());
+    ).rejects.toThrow(
+      new UnauthorizedError(`User with login ${testUser.login} not found`),
+    );
     spy.mockRestore();
   });
 
@@ -136,7 +133,7 @@ describe('AuthService', () => {
 
     await expect(
       service.login(testUser.login, testUser.password),
-    ).rejects.toThrow(new UnauthorizedException());
+    ).rejects.toThrow(new UnauthorizedError(INVALID_CREDENTIALS));
     spy.mockRestore();
   });
 
@@ -179,7 +176,7 @@ describe('AuthService', () => {
     mockedJWTService.verifyAsync.mockRejectedValueOnce(new Error());
 
     await expect(service.refresh(refreshToken)).rejects.toThrow(
-      new ForbiddenException('Refresh token is invalid or expired'),
+      new ForbiddenError(INVALID_REFRESH_TOKEN),
     );
   });
 });

@@ -22,13 +22,15 @@ import {
   BAD_REQUEST_MESSAGE,
   NOT_FOUND_MESSAGE,
   UNPROCESSED_MESSAGE,
+  INVALID_ARTICLE,
+  INVALID_CATEGORY_AUTHOR,
 } from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { Roles } from '../auth/auth.roles';
 import { PermissionsArticlesGuard } from '../auth/guards/articlePermissions.guard';
 import { UserRole } from '../../generated/prisma/enums';
-import { ValidationError } from 'src/errors/ValidationError';
-import { NotFoundError } from 'src/errors/NotFoundError';
+import { ValidationError } from '../errors/ValidationError';
+import { NotFoundError } from '../errors/NotFoundError';
 
 @ApiTags('Article')
 @Controller('article')
@@ -52,11 +54,11 @@ export class ArticlesController {
     } catch (err) {
       if (err instanceof PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {
-          throw new ValidationError('Invalid Article Data');
+          throw new ValidationError(INVALID_ARTICLE);
         }
         if (err.code === 'P2003') {
           throw new HttpException(
-            'Non existing category or author',
+            INVALID_CATEGORY_AUTHOR,
             HttpStatus.UNPROCESSABLE_ENTITY,
           );
         }
@@ -126,7 +128,7 @@ export class ArticlesController {
         }
         if (err.code === 'P2003') {
           throw new HttpException(
-            'Non existing category or author',
+            INVALID_CATEGORY_AUTHOR,
             HttpStatus.UNPROCESSABLE_ENTITY,
           );
         }

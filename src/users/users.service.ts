@@ -79,7 +79,6 @@ export class UsersService {
         updateUserDto.oldPassword,
         user.password,
       );
-      console.log('isPasswordCorrect', isPasswordCorrect);
       if (isPasswordCorrect) {
         const updatedUser = await this.storage.updateUser(id, updateUserDto);
         const { id: userId, login, role, createdAt, updatedAt } = updatedUser;

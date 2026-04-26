@@ -25,7 +25,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { Roles } from '../auth/auth.roles';
 import { PermissionsCommentsGuard } from '../auth/guards/commentsPermissions.guard';
 import { UserRole } from '../../generated/prisma/enums';
-import { NotFoundError } from 'src/errors/NotFoundError';
+import { NotFoundError } from '../errors/NotFoundError';
 
 @ApiTags('Comment')
 @Controller('comment')

@@ -20,14 +20,15 @@ import {
   BAD_REQUEST_MESSAGE,
   FORBIDDEN_MESSAGE,
   NOT_FOUND_MESSAGE,
+  USER_EXISTS,
 } from '../constants/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { Roles } from '../auth/auth.roles';
 import { UserRole } from '../../generated/prisma/enums';
 import { PermissionsUsersGuard } from '../auth/guards/usersPermissions.guard';
-import { ValidationError } from 'src/errors/ValidationError';
-import { NotFoundError } from 'src/errors/NotFoundError';
-import { ForbiddenError } from 'src/errors/ForbiddenError';
+import { ValidationError } from '../errors/ValidationError';
+import { NotFoundError } from '../errors/NotFoundError';
+import { ForbiddenError } from '../errors/ForbiddenError';
 
 @ApiTags('User')
 @Controller('user')
@@ -50,7 +51,7 @@ export class UsersController {
         err instanceof PrismaClientKnownRequestError &&
         err.code === 'P2002'
       ) {
-        throw new ValidationError('User already exists');
+        throw new ValidationError(USER_EXISTS);
       } else throw err;
     }
   }

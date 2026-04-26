@@ -70,10 +70,6 @@ describe('CommentsService', () => {
     service = module.get<CommentsService>(CommentsService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
   it('should get all comments with articleId', async () => {
     const articleId = 'ccc7b51f-48ef-4bb8-9026-9301b394a01c';
     const receivedComments = await service.findAll(articleId);

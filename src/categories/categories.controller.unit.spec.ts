@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
-import { NOT_FOUND_MESSAGE } from '../constants/constants';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { NotFoundError } from '../errors/NotFoundError';
 
 describe('CategoriesController', () => {
   let controller: CategoriesController;
@@ -40,10 +39,6 @@ describe('CategoriesController', () => {
     service = module.get<CategoriesService>(CategoriesService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
   describe('Get Categories', () => {
     it('should get all categories', async () => {
       vi.spyOn(service, 'findAll').mockResolvedValue(testCategories);
@@ -60,13 +55,14 @@ describe('CategoriesController', () => {
     });
 
     it('should throw an error if category not found', async () => {
+      const id = 'e219c6b3-5242-4c66-8775-6bf26a301fb0';
       vi.spyOn(service, 'findOne').mockResolvedValue(null);
       await expect(() =>
         controller.findOne({
-          id: 'e219c6b3-5242-4c66-8775-6bf26a301fb0',
+          id,
         }),
       ).rejects.toThrow(
-        new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
+        new NotFoundError(`Category with id ${id} is not found`),
       );
     });
   });
@@ -108,6 +104,7 @@ describe('CategoriesController', () => {
     });
 
     it('should throw error if category not found', async () => {
+      const id = 'e219c6b3-5242-4c66-8775-6bf26a301fb0';
       vi.spyOn(service, 'update').mockRejectedValue(
         new PrismaClientKnownRequestError('message', {
           code: 'P2025',
@@ -116,14 +113,14 @@ describe('CategoriesController', () => {
       );
       await expect(() =>
         controller.update(
-          { id: 'e219c6b3-5242-4c66-8775-6bf26a301fb0' },
+          { id },
           {
             name: 'Category1',
             description: 'Category1 description',
           },
         ),
       ).rejects.toThrow(
-        new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
+        new NotFoundError(`Category with id ${id} is not found`),
       );
     });
   });
@@ -142,16 +139,15 @@ describe('CategoriesController', () => {
     });
 
     it('should throw error if category not found', async () => {
+      const id = 'e219c6b3-5242-4c66-8775-6bf26a301fb0';
       vi.spyOn(service, 'remove').mockRejectedValue(
         new PrismaClientKnownRequestError('message', {
           code: 'P2025',
           clientVersion: '1',
         }),
       );
-      await expect(() =>
-        controller.remove({ id: 'e219c6b3-5242-4c66-8775-6bf26a301fb0' }),
-      ).rejects.toThrow(
-        new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
+      await expect(() => controller.remove({ id })).rejects.toThrow(
+        new NotFoundError(`Category with id ${id} is not found`),
       );
     });
   });
