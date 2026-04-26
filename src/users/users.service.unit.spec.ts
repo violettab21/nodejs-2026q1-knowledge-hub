@@ -4,7 +4,6 @@ import { IUsersStorage } from './interfaces/users.interface';
 import { UserRole } from '../../generated/prisma/enums';
 import { CreateUserDto } from './dto/create-user.dto';
 import bcrypt from 'bcryptjs';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { PASSWORD_INCORRECT, USER_NOT_FOUND } from './constants/constants';
 import * as pagination from '../helpers/pagination/pagination';
 import * as sorting from '../helpers/sorting/sorting';
@@ -61,14 +60,7 @@ describe('UsersService', () => {
         updatedAt: new Date(),
       };
     }),
-    updateUser: vi
-      .fn()
-      .mockImplementation((id, updateUserDto: UpdateUserDto) => {
-        const user = users.find((user) => user.id === id);
-        return {
-          ...user,
-        };
-      }),
+    updateUser: vi.fn().mockResolvedValue(users[0]),
     removeUser: vi.fn().mockImplementation((id) => {
       const user = users.find((user) => user.id === id);
       return {
@@ -136,13 +128,14 @@ describe('UsersService', () => {
     expect(receivedUser).toBeNull();
   });
 
-  it('should create user', async () => {
+  it('should create user when role is not passed', async () => {
     vi.spyOn(bcrypt, 'hash').mockImplementationOnce(
       async (password: string) => `hashed${password}`,
     );
     const newUser = await service.create(newTestUser);
     expect(mockedUsersStorage.createUser).toHaveBeenCalledWith({
       ...newTestUser,
+      role: UserRole.VIEWER,
       password: `hashed${newTestUser.password}`,
     });
     expect(newUser.login).toEqual(newTestUser.login);
@@ -151,6 +144,18 @@ describe('UsersService', () => {
     expect('role' in newUser).toBe(true);
     expect(typeof newUser.createdAt).toBe('number');
     expect(typeof newUser.updatedAt).toBe('number');
+  });
+
+  it('should create user when role is passed', async () => {
+    vi.spyOn(bcrypt, 'hash').mockImplementationOnce(
+      async (password: string) => `hashed${password}`,
+    );
+    await service.create({ ...newTestUser, role: UserRole.EDITOR });
+    expect(mockedUsersStorage.createUser).toHaveBeenCalledWith({
+      ...newTestUser,
+      role: UserRole.EDITOR,
+      password: `hashed${newTestUser.password}`,
+    });
   });
 
   it('should update user', async () => {

@@ -89,6 +89,22 @@ All GET endpoints support optional query parameters for pagination and sorting:
 
 ## Testing
 
+### Unit tests
+
+To run all unit tests run:
+
+```
+npm run test:unit
+```
+
+To run check coverage run:
+
+```
+npm run test:coverage
+```
+
+### E2E tests
+
 Note: make sure that dependencies installed and prisma generated
 
 After application running open new terminal and enter:
@@ -127,6 +143,12 @@ To run RBAC (role-based access control) tests
 
 ```
 npm run test:rbac
+```
+
+To run AUTH, RBAC, REFRESH tests
+
+```
+npm run test:jest
 ```
 
 ### Auto-fix and format

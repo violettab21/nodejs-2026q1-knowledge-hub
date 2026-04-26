@@ -10,6 +10,7 @@ import { PrismaClientKnownRequestError } from '../../generated/prisma/internal/p
 import { NOT_FOUND_MESSAGE } from '../constants/constants';
 import bcrypt from 'bcryptjs';
 import 'dotenv/config';
+import { UserRole } from '../../generated/prisma/enums';
 
 @Injectable()
 export class UsersService {
@@ -17,8 +18,13 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<UserResponse> {
     const { password, ...props } = createUserDto;
+    const updatedRole = props.role || UserRole.VIEWER;
     const hash = await bcrypt.hash(password, Number(process.env.CRYPT_SALT));
-    const user = this.storage.createUser({ ...props, password: hash });
+    const user = this.storage.createUser({
+      ...props,
+      password: hash,
+      role: updatedRole,
+    });
     const { id, login, role, createdAt, updatedAt } = await user;
     return {
       id,

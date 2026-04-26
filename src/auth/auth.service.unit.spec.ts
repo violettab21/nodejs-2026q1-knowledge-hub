@@ -4,7 +4,6 @@ import { IUsersStorage } from 'src/users/interfaces/users.interface';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '../../generated/prisma/enums';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import bcrypt from 'bcryptjs';
 import { UsersService } from '../../src/users/users.service';
 import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
@@ -55,14 +54,7 @@ describe('AuthService', () => {
         updatedAt: new Date(),
       };
     }),
-    updateUser: vi
-      .fn()
-      .mockImplementation((id, updateUserDto: UpdateUserDto) => {
-        const user = users.find((user) => user.id === id);
-        return {
-          ...user,
-        };
-      }),
+    updateUser: vi.fn().mockResolvedValue(users[0]),
     removeUser: vi.fn().mockImplementation((id) => {
       const user = users.find((user) => user.id === id);
       return {
@@ -72,9 +64,7 @@ describe('AuthService', () => {
   } as vi.mocked<IUsersStorage>;
 
   const mockedJWTService = {
-    signAsync: vi
-      .fn()
-      .mockImplementation((payload, options) => 'generated token'),
+    signAsync: vi.fn().mockResolvedValue('generated token'),
     verifyAsync: vi.fn(),
   };
 

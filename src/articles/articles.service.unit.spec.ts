@@ -3,7 +3,6 @@ import { ArticlesService } from './articles.service';
 import { IArticlesStorage } from './interfaces/articles.interface';
 import { ArticleStatus } from '../../generated/prisma/enums';
 import { CreateArticleDto } from './dto/create-article.dto';
-import { UpdateArticleDto } from './dto/update-article.dto';
 import * as pagination from '../helpers/pagination/pagination';
 import * as sorting from '../helpers/sorting/sorting';
 
@@ -59,11 +58,7 @@ describe('ArticlesService', () => {
       .mockImplementation((articleId) =>
         articles.find((article) => article.id === articleId),
       ),
-    filterArticles: vi
-      .fn()
-      .mockImplementation(
-        (status?: ArticleStatus, categoryId?: string, tag?: string) => articles,
-      ),
+    filterArticles: vi.fn().mockResolvedValue(articles),
     createArticle: vi
       .fn()
       .mockImplementation((createArticleDTO: CreateArticleDto) => {
@@ -81,14 +76,7 @@ describe('ArticlesService', () => {
           updatedAt: new Date(),
         };
       }),
-    updateArticle: vi
-      .fn()
-      .mockImplementation((id, updateArticleDto: UpdateArticleDto) => {
-        const article = articles.find((article) => article.id === id);
-        return {
-          ...article,
-        };
-      }),
+    updateArticle: vi.fn().mockResolvedValue(articles[0]),
     removeArticle: vi.fn().mockImplementation((id) => {
       const article = articles.find((article) => article.id === id);
       return {
@@ -119,6 +107,20 @@ describe('ArticlesService', () => {
     await service.findAll();
 
     expect(mockedArticlesStorage.filterArticles).toHaveBeenCalled();
+  });
+
+  it('should pass filter parameters to prisma', async () => {
+    await service.findAll(
+      ArticleStatus.DRAFT,
+      '1e27b6f3-fa40-44e8-8baf-9ede2f71249c',
+      'tag1',
+    );
+
+    expect(mockedArticlesStorage.filterArticles).toHaveBeenCalledWith(
+      ArticleStatus.DRAFT,
+      '1e27b6f3-fa40-44e8-8baf-9ede2f71249c',
+      'tag1',
+    );
   });
 
   it('should call articles with pages when page and limit passed', async () => {

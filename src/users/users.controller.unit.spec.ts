@@ -4,7 +4,6 @@ import { UsersService } from './users.service';
 import { UserRole } from '../../generated/prisma/enums';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { BAD_REQUEST_MESSAGE, NOT_FOUND_MESSAGE } from '../constants/constants';
-import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { PASSWORD_INCORRECT, USER_NOT_FOUND } from './constants/constants';
 
@@ -59,17 +58,13 @@ describe('UsersController', () => {
   describe('findOne', () => {
     it('should return user when it is found by id', async () => {
       const id = '9121d4bb-3e75-41da-9863-5ac7b1dfcfed';
-      vi.spyOn(service, 'findOne').mockImplementation(
-        async (id: string) => testUsers[0],
-      );
+      vi.spyOn(service, 'findOne').mockResolvedValueOnce(testUsers[0]);
       expect(await controller.findOne({ id })).toBe(testUsers[0]);
     });
 
     it('should throw error when user is not found', async () => {
       const id = '9121d4bb-3e75-41da-9863-5ac7b1dfcfed';
-      vi.spyOn(service, 'findOne').mockImplementation(
-        async (id: string) => null,
-      );
+      vi.spyOn(service, 'findOne').mockResolvedValueOnce(null);
       await expect(controller.findOne({ id })).rejects.toThrow(
         new HttpException(NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND),
       );
@@ -85,9 +80,7 @@ describe('UsersController', () => {
         createdAt: Number(new Date()),
         updatedAt: Number(new Date()),
       };
-      vi.spyOn(service, 'create').mockImplementation(
-        async (createUserDto: CreateUserDto) => newUser,
-      );
+      vi.spyOn(service, 'create').mockResolvedValueOnce(newUser);
       expect(
         await controller.create({
           login: 'TEST_USER1',

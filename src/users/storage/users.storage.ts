@@ -3,9 +3,7 @@ import { IUsersStorage } from '../interfaces/users.interface';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User, UserRole } from 'generated/prisma/client';
-
-
+import { User } from 'generated/prisma/client';
 
 @Injectable()
 export class UsersStorage implements IUsersStorage {
@@ -38,7 +36,7 @@ export class UsersStorage implements IUsersStorage {
       data: {
         ...props,
         password: password,
-        role: role || UserRole.VIEWER,
+        role: role,
       },
     });
     return newUser;
