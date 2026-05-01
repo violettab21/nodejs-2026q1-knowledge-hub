@@ -8,6 +8,7 @@ import { CommentsModule } from './comments/comments.module';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './logger.middleware';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { LoggerMiddleware } from './logger.middleware';
     CategoriesModule,
     CommentsModule,
     AuthModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

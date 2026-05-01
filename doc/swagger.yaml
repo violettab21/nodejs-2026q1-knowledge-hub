@@ -582,6 +582,39 @@ paths:
       responses:
         '200':
           description: ''
+  /ai:
+    get:
+      operationId: AiController_test
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+  /ai/articles/{articleId}/summarize:
+    post:
+      operationId: AiController_summarizeArticles
+      parameters:
+        - name: articleId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SummarizeArticleAiDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
 info:
   title: Knowledge Hub
   description: The Knowledge Hub API description
@@ -837,3 +870,8 @@ components:
           type: string
       required:
         - refreshToken
+    SummarizeArticleAiDto:
+      type: object
+      properties:
+        maxLength:
+          type: object
