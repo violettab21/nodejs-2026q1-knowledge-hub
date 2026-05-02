@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Param, Post } from '@nestjs/common';
 import { AiService } from './ai.service';
 import {
   SummarizeArticleAiDto,
@@ -13,15 +13,11 @@ import {
   AnalyzeArticleAiDto,
   AnalyzeArticleParams,
 } from './dto/analyzeArticle.dto';
+import { GenerateDto } from './dto/generate.dto';
 
 @Controller('ai')
 export class AiController {
   constructor(private readonly aiService: AiService) {}
-
-  @Get()
-  async test() {
-    return await this.aiService.test();
-  }
 
   @Post('articles/:articleId/summarize')
   @HttpCode(200)
@@ -81,6 +77,18 @@ export class AiController {
         throw new NotFoundError('Article not found');
       }
       return analyze;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Post('generate')
+  @HttpCode(200)
+  async generate(@Body() prompt: GenerateDto) {
+    try {
+      const result = await this.aiService.generate(prompt);
+
+      return result;
     } catch (err) {
       throw err;
     }

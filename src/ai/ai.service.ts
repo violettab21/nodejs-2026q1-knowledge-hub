@@ -13,6 +13,9 @@ import {
 import { TranslateArticleAiDto } from './dto/translateArticle.dto';
 import { TranslateArticleResponse } from './interfaces/translateArticle.interface';
 import { AnalyzeArticleAiDto } from './dto/analyzeArticle.dto';
+import { GenerateDto } from './dto/generate.dto';
+import { GenerateResponse } from './interfaces/generate.interface';
+import { AnalyzeArticleResponse } from './interfaces/analyzeArticle.interface';
 
 const baseURL = 'https://generativelanguage.googleapis.com';
 
@@ -28,54 +31,25 @@ export class AiService {
     private readonly httpService: HttpService,
     private articlesService: ArticlesService,
   ) {}
-  async test(): Promise<unknown> {
-    const { data } = await firstValueFrom(
-      this.httpService.get(
-        `${baseURL}/v1/models?key=${process.env.GEMINI_API_KEY}`,
-      ),
-    );
-    console.log(data);
-    return data;
-  }
 
   async summarize(
     summarizeArticleAiDto: SummarizeArticleAiDto,
     articleId: string,
-  ): Promise<unknown> {
+  ): Promise<SummarizeArticleResponse> {
     const article = await this.articlesService.findOne(articleId);
     if (!article) return null;
 
     const { title, content } = article;
-    const payload = {
-      contents: [
-        {
-          parts: [
-            {
-              text: `${generateSummarizeArticlesPrompt(summarizeArticleAiDto.maxLength ? summarySize[summarizeArticleAiDto.maxLength] : 250, title, content)}`,
-            },
-          ],
-        },
-      ],
-    };
+    const prompt = `${generateSummarizeArticlesPrompt(summarizeArticleAiDto.maxLength ? summarySize[summarizeArticleAiDto.maxLength] : 250, title, content)}`;
+
     try {
-      const result = await firstValueFrom(
-        this.httpService.post(
-          `${baseURL}/v1/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`,
-          payload,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'x-goog-api-key': `${process.env.GEMINI_API_KEY}`,
-            },
-          },
-        ),
-      );
-      const summary = result.data.candidates[0].content.parts[0].text;
+      const { result } = await this.generate({ prompt });
+
       const response: SummarizeArticleResponse = {
         articleId: articleId,
-        summary: summary,
+        summary: result,
         originalLength: content.length,
-        summaryLength: summary.length,
+        summaryLength: result.length,
       };
       return response;
     } catch (err) {
@@ -87,38 +61,17 @@ export class AiService {
   async translate(
     translateArticleAiDto: TranslateArticleAiDto,
     articleId: string,
-  ): Promise<unknown> {
+  ): Promise<TranslateArticleResponse> {
     const article = await this.articlesService.findOne(articleId);
     if (!article) return null;
 
     const { title, content } = article;
-    const payload = {
-      contents: [
-        {
-          parts: [
-            {
-              text: `${generateTranslateArticlePrompt(translateArticleAiDto.sourceLanguage, translateArticleAiDto.targetLanguage, title, content)}`,
-            },
-          ],
-        },
-      ],
-    };
-    try {
-      const result = await firstValueFrom(
-        this.httpService.post(
-          `${baseURL}/v1/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`,
-          payload,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'x-goog-api-key': `${process.env.GEMINI_API_KEY}`,
-            },
-          },
-        ),
-      );
-      const answer = result.data.candidates[0].content.parts[0].text;
+    const prompt = `${generateTranslateArticlePrompt(translateArticleAiDto.sourceLanguage, translateArticleAiDto.targetLanguage, title, content)}`;
 
-      const parts = answer.split('\n');
+    try {
+      const { result } = await this.generate({ prompt });
+
+      const parts = result.split('\n');
       const detectedData = parts[0];
       const detectedLang = detectedData.split(':')[1];
       const translated = parts.slice(1).join();
@@ -138,17 +91,39 @@ export class AiService {
   async analyze(
     analyzeArticleAiDto: AnalyzeArticleAiDto,
     articleId: string,
-  ): Promise<unknown> {
+  ): Promise<AnalyzeArticleResponse> {
     const article = await this.articlesService.findOne(articleId);
     if (!article) return null;
 
     const { title, content } = article;
+    const prompt = `${generateAnalyzeArticlePrompt(title, content, analyzeArticleAiDto.task)}`;
+    try {
+      const { result } = await this.generate({ prompt });
+      const jsonStart = result.indexOf('{');
+      const jsonEnd = result.lastIndexOf('}');
+      const json = result.slice(jsonStart, jsonEnd + 1).trim();
+      const obj = JSON.parse(json.trim());
+      const response: AnalyzeArticleResponse = {
+        articleId: articleId,
+        analysis: obj.ANALYSIS_RES,
+        suggestions: obj.SUGGESTIONS_RES,
+        severity: obj.SEVERITY_RES,
+      };
+
+      return response;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  async generate(prompt: GenerateDto) {
     const payload = {
       contents: [
         {
           parts: [
             {
-              text: `${generateAnalyzeArticlePrompt(title, content, analyzeArticleAiDto.task)}`,
+              text: prompt.prompt,
             },
           ],
         },
@@ -169,15 +144,8 @@ export class AiService {
       );
       const answer = result.data.candidates[0].content.parts[0].text;
 
-      const jsonStart = answer.indexOf('{');
-      const jsonEnd = answer.lastIndexOf('}');
-      const json = answer.slice(jsonStart, jsonEnd + 1).trim();
-      const obj = JSON.parse(json.trim());
-      const response = {
-        articleId: articleId,
-        analysis: obj.ANALYSIS_RES,
-        suggestions: obj.SUGGESTIONS_RES,
-        severity: obj.SEVERITY_RES,
+      const response: GenerateResponse = {
+        result: answer,
       };
 
       return response;

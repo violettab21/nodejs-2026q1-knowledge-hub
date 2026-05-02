@@ -582,17 +582,6 @@ paths:
       responses:
         '200':
           description: ''
-  /ai:
-    get:
-      operationId: AiController_test
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
   /ai/articles/{articleId}/summarize:
     post:
       operationId: AiController_summarizeArticles
@@ -652,6 +641,23 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AnalyzeArticleAiDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+  /ai/generate:
+    post:
+      operationId: AiController_generate
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateDto'
       responses:
         '200':
           description: ''
@@ -938,3 +944,10 @@ components:
             - bugs
             - optimize
             - explain
+    GenerateDto:
+      type: object
+      properties:
+        prompt:
+          type: string
+      required:
+        - prompt
