@@ -637,6 +637,28 @@ paths:
             application/json:
               schema:
                 type: object
+  /ai/articles/{articleId}/analyze:
+    post:
+      operationId: AiController_analyzeArticles
+      parameters:
+        - name: articleId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyzeArticleAiDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
 info:
   title: Knowledge Hub
   description: The Knowledge Hub API description
@@ -906,3 +928,13 @@ components:
           type: string
       required:
         - targetLanguage
+    AnalyzeArticleAiDto:
+      type: object
+      properties:
+        task:
+          type: string
+          enum:
+            - review
+            - bugs
+            - optimize
+            - explain
