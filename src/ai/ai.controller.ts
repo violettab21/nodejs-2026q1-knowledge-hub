@@ -9,6 +9,10 @@ import {
   TranslateArticleAiDto,
   TranslateArticleParams,
 } from './dto/translateArticle.dto';
+import {
+  AnalyzeArticleAiDto,
+  AnalyzeArticleParams,
+} from './dto/analyzeArticle.dto';
 
 @Controller('ai')
 export class AiController {
@@ -56,6 +60,27 @@ export class AiController {
         throw new NotFoundError('Article not found');
       }
       return translate;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Post('articles/:articleId/analyze')
+  @HttpCode(200)
+  async analyzeArticles(
+    @Body() analyzeArticleAiDto: AnalyzeArticleAiDto,
+    @Param() params: AnalyzeArticleParams,
+  ) {
+    const { articleId } = params;
+    try {
+      const analyze = await this.aiService.analyze(
+        analyzeArticleAiDto,
+        articleId,
+      );
+      if (!analyze) {
+        throw new NotFoundError('Article not found');
+      }
+      return analyze;
     } catch (err) {
       throw err;
     }
