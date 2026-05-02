@@ -5,7 +5,12 @@ import { firstValueFrom } from 'rxjs';
 import { SummarizeArticleAiDto } from './dto/summarizeArticle.dto';
 import { ArticlesService } from 'src/articles/articles.service';
 import { SummarizeArticleResponse } from './interfaces/summarizeArticle.interface';
-import { generateSummarizeArticlesPrompt } from './prompts/prompts';
+import {
+  generateSummarizeArticlesPrompt,
+  generateTranslateArticlePrompt,
+} from './prompts/prompts';
+import { TranslateArticleAiDto } from './dto/translateArticle.dto';
+import { TranslateArticleResponse } from './interfaces/translateArticle.interface';
 
 const baseURL = 'https://generativelanguage.googleapis.com';
 
@@ -69,6 +74,56 @@ export class AiService {
         summary: summary,
         originalLength: content.length,
         summaryLength: summary.length,
+      };
+      return response;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  async translate(
+    translateArticleAiDto: TranslateArticleAiDto,
+    articleId: string,
+  ): Promise<unknown> {
+    const article = await this.articlesService.findOne(articleId);
+    if (!article) return null;
+
+    const { title, content } = article;
+    const payload = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `${generateTranslateArticlePrompt(translateArticleAiDto.sourceLanguage, translateArticleAiDto.targetLanguage, title, content)}`,
+            },
+          ],
+        },
+      ],
+    };
+    try {
+      const result = await firstValueFrom(
+        this.httpService.post(
+          `${baseURL}/v1/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`,
+          payload,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': `${process.env.GEMINI_API_KEY}`,
+            },
+          },
+        ),
+      );
+      const answer = result.data.candidates[0].content.parts[0].text;
+      const parts = answer.split('\n');
+      const detectedData = parts[0];
+      const detectedLang = detectedData.split(':')[1];
+      const translated = parts.slice(1).join();
+
+      const response: TranslateArticleResponse = {
+        articleId: articleId,
+        translatedText: translated,
+        detectedLanguage: detectedLang,
       };
       return response;
     } catch (err) {

@@ -615,6 +615,28 @@ paths:
             application/json:
               schema:
                 type: object
+  /ai/articles/{articleId}/translate:
+    post:
+      operationId: AiController_translateArticles
+      parameters:
+        - name: articleId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranslateArticleAiDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
 info:
   title: Knowledge Hub
   description: The Knowledge Hub API description
@@ -875,3 +897,12 @@ components:
       properties:
         maxLength:
           type: object
+    TranslateArticleAiDto:
+      type: object
+      properties:
+        targetLanguage:
+          type: string
+        sourceLanguage:
+          type: string
+      required:
+        - targetLanguage

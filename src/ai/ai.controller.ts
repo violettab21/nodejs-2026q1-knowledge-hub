@@ -5,6 +5,10 @@ import {
   SummarizeArticleParams,
 } from './dto/summarizeArticle.dto';
 import { NotFoundError } from 'src/errors/NotFoundError';
+import {
+  TranslateArticleAiDto,
+  TranslateArticleParams,
+} from './dto/translateArticle.dto';
 
 @Controller('ai')
 export class AiController {
@@ -31,6 +35,27 @@ export class AiController {
         throw new NotFoundError('Article not found');
       }
       return summary;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Post('articles/:articleId/translate')
+  @HttpCode(200)
+  async translateArticles(
+    @Body() translateArticleAiDto: TranslateArticleAiDto,
+    @Param() params: TranslateArticleParams,
+  ) {
+    const { articleId } = params;
+    try {
+      const translate = await this.aiService.translate(
+        translateArticleAiDto,
+        articleId,
+      );
+      if (!translate) {
+        throw new NotFoundError('Article not found');
+      }
+      return translate;
     } catch (err) {
       throw err;
     }
