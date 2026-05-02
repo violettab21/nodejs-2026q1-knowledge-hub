@@ -6,9 +6,9 @@ import { ArticlesModule } from 'src/articles/articles.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import 'dotenv/config';
 import { APP_GUARD } from '@nestjs/core';
+import { CacheService } from './cache';
 
 const limit = Number(process.env.AI_RATE_LIMIT_RPM) || 20;
-
 
 @Module({
   imports: [
@@ -25,6 +25,7 @@ const limit = Number(process.env.AI_RATE_LIMIT_RPM) || 20;
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    CacheService,
   ],
 })
 export class AiModule {}

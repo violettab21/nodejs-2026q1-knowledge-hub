@@ -16,6 +16,7 @@ import { AnalyzeArticleAiDto } from './dto/analyzeArticle.dto';
 import { GenerateDto } from './dto/generate.dto';
 import { GenerateResponse } from './interfaces/generate.interface';
 import { AnalyzeArticleResponse } from './interfaces/analyzeArticle.interface';
+import { CacheService } from './cache';
 
 const baseURL = 'https://generativelanguage.googleapis.com';
 
@@ -30,6 +31,7 @@ export class AiService {
   constructor(
     private readonly httpService: HttpService,
     private articlesService: ArticlesService,
+    private cacheService: CacheService,
   ) {}
 
   async summarize(
@@ -39,7 +41,15 @@ export class AiService {
     const article = await this.articlesService.findOne(articleId);
     if (!article) return null;
 
-    const { title, content } = article;
+    const { title, content, updatedAt } = article;
+    const cacheKey = `${articleId}-${JSON.stringify(summarizeArticleAiDto)}-${updatedAt}`;
+
+    const cachedRes = this.cacheService.getCachedResponseByKey(cacheKey);
+    if (cachedRes) {
+      console.log(`Getting from cache, key ${cacheKey}`);
+      return cachedRes as SummarizeArticleResponse;
+    }
+
     const prompt = `${generateSummarizeArticlesPrompt(summarizeArticleAiDto.maxLength ? summarySize[summarizeArticleAiDto.maxLength] : 250, title, content)}`;
 
     try {
@@ -51,6 +61,8 @@ export class AiService {
         originalLength: content.length,
         summaryLength: result.length,
       };
+      console.log(`setting  cache, key ${cacheKey}`);
+      this.cacheService.setCachedResponse(cacheKey, response);
       return response;
     } catch (err) {
       console.log(err);
@@ -65,9 +77,15 @@ export class AiService {
     const article = await this.articlesService.findOne(articleId);
     if (!article) return null;
 
-    const { title, content } = article;
+    const { title, content, updatedAt } = article;
     const prompt = `${generateTranslateArticlePrompt(translateArticleAiDto.sourceLanguage, translateArticleAiDto.targetLanguage, title, content)}`;
+    const cacheKey = `${articleId}-${JSON.stringify(translateArticleAiDto)}-${updatedAt}`;
 
+    const cachedRes = this.cacheService.getCachedResponseByKey(cacheKey);
+    if (cachedRes) {
+      console.log(`Getting from cache, key ${cacheKey}`);
+      return cachedRes as TranslateArticleResponse;
+    }
     try {
       const { result } = await this.generate({ prompt });
 
@@ -81,6 +99,8 @@ export class AiService {
         translatedText: translated,
         detectedLanguage: detectedLang,
       };
+      console.log(`Setting cache with key ${cacheKey}`);
+      this.cacheService.setCachedResponse(cacheKey, response);
       return response;
     } catch (err) {
       console.log(err);
@@ -132,7 +152,7 @@ export class AiService {
     try {
       const result = await firstValueFrom(
         this.httpService.post(
-          `${baseURL}/v1/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`,
+          `${baseURL}/v1/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
           payload,
           {
             headers: {
