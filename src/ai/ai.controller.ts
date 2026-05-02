@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Param, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Param, Post, Query } from '@nestjs/common';
 import { AiService } from './ai.service';
 import {
   SummarizeArticleAiDto,
@@ -14,6 +14,7 @@ import {
   AnalyzeArticleParams,
 } from './dto/analyzeArticle.dto';
 import { GenerateDto } from './dto/generate.dto';
+import { UsageParams } from './dto/usage.dto';
 
 @Controller('ai')
 export class AiController {
@@ -87,6 +88,18 @@ export class AiController {
   async generate(@Body() prompt: GenerateDto) {
     try {
       const result = await this.aiService.generate(prompt);
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Post('usage')
+  @HttpCode(200)
+  usage(@Query() params?: UsageParams) {
+    try {
+      const result = this.aiService.usage(params.endpoint);
 
       return result;
     } catch (err) {

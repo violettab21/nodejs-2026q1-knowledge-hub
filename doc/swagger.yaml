@@ -661,10 +661,23 @@ paths:
       responses:
         '200':
           description: ''
-          content:
-            application/json:
-              schema:
-                type: object
+  /ai/usage:
+    post:
+      operationId: AiController_usage
+      parameters:
+        - name: endpoint
+          required: true
+          in: query
+          schema:
+            enum:
+              - summarize
+              - translate
+              - analyze
+              - generate
+            type: string
+      responses:
+        '200':
+          description: ''
 info:
   title: Knowledge Hub
   description: The Knowledge Hub API description
