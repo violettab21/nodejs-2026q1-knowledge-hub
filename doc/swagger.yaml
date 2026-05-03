@@ -662,7 +662,7 @@ paths:
         '200':
           description: ''
   /ai/usage:
-    post:
+    get:
       operationId: AiController_usage
       parameters:
         - name: endpoint

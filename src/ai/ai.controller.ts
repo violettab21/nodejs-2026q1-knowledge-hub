@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
 import { AiService } from './ai.service';
 import {
   SummarizeArticleAiDto,
@@ -95,7 +95,7 @@ export class AiController {
     }
   }
 
-  @Post('usage')
+  @Get('usage')
   @HttpCode(200)
   usage(@Query() params?: UsageParams) {
     try {

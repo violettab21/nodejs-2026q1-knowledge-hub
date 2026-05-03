@@ -1,5 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { AxiosError } from 'axios';
 import 'dotenv/config';
 import { firstValueFrom } from 'rxjs';
 import { SummarizeArticleAiDto } from './dto/summarizeArticle.dto';
@@ -21,7 +26,8 @@ import { UsageStorage } from './usage';
 import type { Endpoint, RequestUsage } from './usage';
 import { EndpointUsage } from './interfaces/usage.interface';
 
-const baseURL = 'https://generativelanguage.googleapis.com';
+const baseURL = process.env.GEMINI_API_BASE_URL;
+const model = process.env.GEMINI_MODEL;
 
 const summarySize = {
   short: 50,
@@ -70,7 +76,6 @@ export class AiService {
       this.cacheService.setCachedResponse(cacheKey, response);
       return response;
     } catch (err) {
-      console.log(err);
       throw err;
     }
   }
@@ -108,7 +113,6 @@ export class AiService {
       this.cacheService.setCachedResponse(cacheKey, response);
       return response;
     } catch (err) {
-      console.log(err);
       throw err;
     }
   }
@@ -138,7 +142,6 @@ export class AiService {
 
       return response;
     } catch (err) {
-      console.log(err);
       throw err;
     }
   }
@@ -168,7 +171,7 @@ export class AiService {
     try {
       const result = await firstValueFrom(
         this.httpService.post(
-          `${baseURL}/v1/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+          `${baseURL}/v1/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
           payload,
           {
             headers: {
@@ -178,7 +181,6 @@ export class AiService {
           },
         ),
       );
-      console.log(result.data);
       const answer = result.data.candidates[0].content.parts[0].text;
 
       const response: GenerateResponse = {
@@ -188,8 +190,27 @@ export class AiService {
 
       return response;
     } catch (err) {
-      console.log(err);
-      throw err;
+      if (err instanceof AxiosError) {
+        if (err.response.status === 403) {
+          throw new InternalServerErrorException(
+            err.response.data?.error?.message || 'Internal Server Error',
+          );
+        }
+        if (
+          err.response.status === 429 ||
+          err.response.status === 503 ||
+          err.response.status === 504
+        ) {
+          throw new ServiceUnavailableException(
+            err.response.data?.error?.message || 'Service Unavailable',
+          );
+        }
+        throw new InternalServerErrorException(
+          err.response.data?.error?.message || 'Internal Server Error',
+        );
+      } else {
+        throw new InternalServerErrorException('Internal Server Error');
+      }
     }
   }
 
