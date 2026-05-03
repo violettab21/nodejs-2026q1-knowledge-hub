@@ -29,12 +29,6 @@ import { EndpointUsage } from './interfaces/usage.interface';
 const baseURL = process.env.GEMINI_API_BASE_URL;
 const model = process.env.GEMINI_MODEL;
 
-const summarySize = {
-  short: 50,
-  medium: 250,
-  detailed: 500,
-};
-
 @Injectable()
 export class AiService {
   constructor(
@@ -56,11 +50,10 @@ export class AiService {
 
     const cachedRes = this.cacheService.getCachedResponseByKey(cacheKey);
     if (cachedRes) {
-      console.log(`Getting from cache, key ${cacheKey}`);
       return cachedRes as SummarizeArticleResponse;
     }
 
-    const prompt = `${generateSummarizeArticlesPrompt(summarizeArticleAiDto.maxLength ? summarySize[summarizeArticleAiDto.maxLength] : 250, title, content)}`;
+    const prompt = `${generateSummarizeArticlesPrompt(summarizeArticleAiDto.maxLength || 'medium', title, content)}`;
 
     try {
       const { result, tokens } = await this.getAIResponse({ prompt });
@@ -72,7 +65,6 @@ export class AiService {
         originalLength: content.length,
         summaryLength: result.length,
       };
-      console.log(`setting  cache, key ${cacheKey}`);
       this.cacheService.setCachedResponse(cacheKey, response);
       return response;
     } catch (err) {
@@ -93,7 +85,6 @@ export class AiService {
 
     const cachedRes = this.cacheService.getCachedResponseByKey(cacheKey);
     if (cachedRes) {
-      console.log(`Getting from cache, key ${cacheKey}`);
       return cachedRes as TranslateArticleResponse;
     }
     try {
@@ -109,7 +100,6 @@ export class AiService {
         translatedText: translated,
         detectedLanguage: detectedLang,
       };
-      console.log(`Setting cache with key ${cacheKey}`);
       this.cacheService.setCachedResponse(cacheKey, response);
       return response;
     } catch (err) {

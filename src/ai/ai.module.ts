@@ -13,7 +13,13 @@ const limit = Number(process.env.AI_RATE_LIMIT_RPM) || 20;
 
 @Module({
   imports: [
-    HttpModule,
+    HttpModule /*.register({
+      proxy: {
+        host: 'host.docker.internal',
+        port: 8888,
+        protocol: 'http',
+      },
+    })*/,
     ArticlesModule,
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60000, limit: limit }],

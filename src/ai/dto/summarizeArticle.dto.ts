@@ -1,8 +1,10 @@
-import { IsOptional, IsUUID } from 'class-validator';
+import { IsIn, IsOptional, IsUUID } from 'class-validator';
+import { Size } from '../interfaces/summarizeArticle.interface';
 
 export class SummarizeArticleAiDto {
   @IsOptional()
-  maxLength?: 'short' | 'medium' | 'detailed';
+  @IsIn(['short', 'medium', 'detailed'])
+  maxLength?: Size;
 }
 export class SummarizeArticleParams {
   @IsUUID()

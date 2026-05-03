@@ -937,7 +937,11 @@ components:
       type: object
       properties:
         maxLength:
-          type: object
+          type: string
+          enum:
+            - short
+            - medium
+            - detailed
     TranslateArticleAiDto:
       type: object
       properties:

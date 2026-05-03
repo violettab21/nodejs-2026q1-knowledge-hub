@@ -1,9 +1,21 @@
+import { Size } from '../interfaces/summarizeArticle.interface';
+
+const summarySize = {
+  short: 100,
+  medium: 250,
+  detailed: 500,
+};
+
 export function generateSummarizeArticlesPrompt(
-  maxLength: number,
+  maxLength: Size,
   title: string,
   content: string,
 ) {
-  return `Read article. Please prepare a summary of provided article.\n Size of summary is around (but not greater than) ${maxLength} characters. \n Article name:${title} \n Article content: ${content}.`;
+  return `Read article. Please generate a summary of provided article.
+Summary details level is - ${maxLength}.
+Please note that summary size should not exceed ${summarySize[maxLength]} characters.
+Article name:${title}
+Article content: ${content}.`;
 }
 
 export function generateTranslateArticlePrompt(
@@ -12,7 +24,11 @@ export function generateTranslateArticlePrompt(
   title: string,
   content: string,
 ) {
-  return `Translate article ${sourceLang && 'from language:' + sourceLang} to language ${targetLang}. Detect article language. Provide final result in the following format: start from detectedLang:value, put new line and after that translation (detected language and translation split by new line).  Article name:${title} \n Article content: ${content}.`;
+  return `Translate article ${sourceLang && 'from language:' + sourceLang} to language ${targetLang}.
+Detect article language.
+Provide final result in the following format: start from detectedLang:value, put new line and after that translation (detected language and translation split by new line).
+Article name:${title}
+Article content: ${content}.`;
 }
 
 export function generateAnalyzeArticlePrompt(

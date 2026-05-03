@@ -166,6 +166,23 @@ All GET endpoints support optional query parameters for pagination and sorting:
 11. Model gemini-2.5-flash-lite can be used as alternative
 12. Check instruction above how to run app locally and db in docker
 
+#### Way2:Running DB and app in docker with VPN
+
+1. Use VPN (USA preferable)
+2. Open browser in incognito model
+3. Navigate to https://aistudio.google.com and login
+4. Create New project if you doesn't have yet
+5. Click API Keys -> Create API key
+6. Enter key name and select created project
+7. Copy API key and pass it in env variable GEMINI_API_KEY
+8. Check instruction above how to run app and db in docker
+
+If you are still facing location related issue when running in docker set up proxy (ex. Fiddler):
+1. Download Fiddler if you don't have it
+2. In Fiddler check port where Fiddler listens (Tools -> Options -> Connections)
+3. In file ai.module.ts uncomment proxy set up for HTTP Module.
+4. Check instruction above how to run app and db in docker
+
 ## Testing
 
 Note: make sure that dependencies installed and prisma generated
