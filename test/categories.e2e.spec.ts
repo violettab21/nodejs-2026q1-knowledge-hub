@@ -168,8 +168,7 @@ describe('Category (e2e)', () => {
         .get(categoriesRoutes.getById(createdId))
         .set(commonHeaders);
 
-      const { id: updatedId, name, description } =
-        updatedCategoryResponse.body;
+      const { id: updatedId, name, description } = updatedCategoryResponse.body;
 
       expect(name).toBe(createCategoryDto.name);
       expect(description).toBe(updatedDescription);
@@ -281,7 +280,7 @@ describe('Category (e2e)', () => {
       const createArticleDto = {
         title: 'TEST_ARTICLE',
         content: 'Test content',
-        status: 'draft',
+        status: 'DRAFT',
         authorId: null,
         categoryId,
         tags: [],
