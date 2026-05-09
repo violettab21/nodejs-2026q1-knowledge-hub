@@ -7,6 +7,11 @@ import { ArticlesService } from 'src/articles/articles.service';
 import { ArticleStatus } from 'generated/prisma/enums';
 import { COLLECTION_NAME_ARTICLES, VectorDBService } from './vectorDB.service';
 import { randomUUID } from 'node:crypto';
+import { getChunks } from './utils/chunkContent';
+import 'dotenv/config';
+
+const chunkSize = Number(process.env.RAG_CHUNK_SIZE) || 800;
+const overlap = Number(process.env.RAG_CHUNK_OVERLAP) || 200;
 
 @Injectable()
 export class RagService {
@@ -36,26 +41,32 @@ export class RagService {
         articleList.includes(article.id),
       );
     }
-    const articlesWithVectors = await Promise.all(
+    const articlesWithVectorsInChunks = await Promise.all(
       articlesToIndex.map(async (article) => {
-        console.log('content', article.content);
-        const vector = await this.buildEmbedding(article.content);
-        console.log('vector', vector);
-        return {
-          id: randomUUID(),
-          vector: vector.values,
-          payload: { ...article },
-        };
+        const chunks = getChunks(article.content, chunkSize, overlap);
+        const chunksWithVectors = await Promise.all(
+          chunks.map(async (chunk) => {
+            const vector = await this.buildEmbedding(chunk);
+            return {
+              id: randomUUID(),
+              vector: vector.values,
+              payload: { ...article, chunk: chunk },
+            };
+          }),
+        );
+        /*const vector = await this.buildEmbedding(article.content);
+        console.log('vector', vector);*/
+        return chunksWithVectors;
       }),
     );
-
-    await this.vectorDBService.addArticleIndex(articlesWithVectors);
+    const chunksIndexed = articlesWithVectorsInChunks.flat();
+    await this.vectorDBService.addArticleIndex(chunksIndexed);
 
     console.log(articlesToIndex);
 
     return {
-      indexedArticles: articlesWithVectors.length,
-      indexedChunks: 0,
+      indexedArticles: articlesWithVectorsInChunks.length,
+      indexedChunks: chunksIndexed.length,
       vectorCollection: COLLECTION_NAME_ARTICLES,
     };
   }
