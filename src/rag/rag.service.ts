@@ -79,8 +79,17 @@ export class RagService {
       limit,
       rest,
     );
-
-    return searchRes;
+    const results = searchRes.map((record) => {
+      return {
+        articleId: record.payload.id,
+        articleTitle: record.payload.title,
+        chunk: record.payload.chunk,
+        similarity: record.score,
+      };
+    });
+    return {
+      results: results,
+    };
   }
 
   chat(chatDTO: RagChatRequestDTO) {

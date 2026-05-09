@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import 'dotenv/config';
 import { QdrantClient } from '@qdrant/js-client-rest';
+/*import { Article } from 'generated/prisma/client';*/
 
 export const COLLECTION_NAME_ARTICLES = 'articles_vectors';
 
@@ -9,6 +10,10 @@ interface ArticlePoint {
   vector: number[];
   payload: any;
 }
+
+/*interface Payload extends Article {
+  chunk: string;
+}*/
 
 interface Filter {
   articleStatus?: 'draft' | 'published' | 'archived';
