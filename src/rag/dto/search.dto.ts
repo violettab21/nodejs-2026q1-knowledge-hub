@@ -5,6 +5,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Max,
 } from 'class-validator';
 
 export class RagSearchRequestDTO {
@@ -13,6 +14,7 @@ export class RagSearchRequestDTO {
   query: string; // required
   @IsOptional()
   @IsInt()
+  @Max(20)
   limit?: number; // optional, default 5, max 20
   @IsOptional()
   @IsIn(['draft', 'published', 'archived'])

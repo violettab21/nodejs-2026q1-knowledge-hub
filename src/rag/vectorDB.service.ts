@@ -10,6 +10,12 @@ interface ArticlePoint {
   payload: any;
 }
 
+interface Filter {
+  articleStatus?: 'draft' | 'published' | 'archived';
+  categoryId?: string;
+  tags?: string[];
+}
+
 @Injectable()
 export class VectorDBService {
   private readonly client: QdrantClient;
@@ -33,5 +39,29 @@ export class VectorDBService {
     await this.client.upsert(COLLECTION_NAME_ARTICLES, {
       points: articlePoints,
     });
+  }
+
+  async searchByQuery(query: number[], limit: number = 5, filter: Filter) {
+    const filters = [];
+    if (filter.articleStatus) {
+      filters.push({
+        key: 'status',
+        match: { value: filter.articleStatus.toUpperCase() },
+      });
+    }
+    if (filter.categoryId) {
+      filters.push({ key: 'categoryId', match: { value: filter.categoryId } });
+    }
+    if (filter.tags) {
+      filters.push({ key: 'tags', match: { any: filter.tags } });
+    }
+    const result = await this.client.query(COLLECTION_NAME_ARTICLES, {
+      query,
+      filter: { must: filters },
+      limit,
+      with_payload: true,
+    });
+    const searchResult = result.points;
+    return searchResult;
   }
 }

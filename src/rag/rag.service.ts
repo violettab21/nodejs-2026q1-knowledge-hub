@@ -71,8 +71,16 @@ export class RagService {
     };
   }
 
-  search(searchDto: RagSearchRequestDTO) {
-    return `This action search vector`;
+  async search(searchDto: RagSearchRequestDTO) {
+    const { query, limit = 5, ...rest } = searchDto;
+    const queryVector = await this.buildEmbedding(query);
+    const searchRes = await this.vectorDBService.searchByQuery(
+      queryVector.values,
+      limit,
+      rest,
+    );
+
+    return searchRes;
   }
 
   chat(chatDTO: RagChatRequestDTO) {

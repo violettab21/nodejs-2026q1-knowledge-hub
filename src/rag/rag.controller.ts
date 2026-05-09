@@ -10,12 +10,13 @@ export class RagController {
 
   @Post('index')
   @HttpCode(200)
-  index(@Body() reindexDTO: ReindexRequestDTO) {
-    return this.ragService.buildVector(reindexDTO);
+  async index(@Body() reindexDTO: ReindexRequestDTO) {
+    return await this.ragService.buildVector(reindexDTO);
   }
   @Post('search')
-  search(@Body() searchDto: RagSearchRequestDTO) {
-    return this.ragService.search(searchDto);
+  @HttpCode(200)
+  async search(@Body() searchDto: RagSearchRequestDTO) {
+    return await this.ragService.search(searchDto);
   }
   @Post('chat')
   chat(@Body() chatDTO: RagChatRequestDTO) {
