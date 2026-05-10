@@ -16,6 +16,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
     depends_on:
       - db
+      - qdrant
     networks:
       - custom_network
     restart: on-failure
@@ -37,6 +38,13 @@ services:
     healthcheck:
       test: ['CMD', 'pg_isready', '-d', '${POSTGRES_DB}', '-h', 'db']
       start_period: 5s
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - '${QDRANT_PORT}:${QDRANT_PORT}'
+    networks:
+      - custom_network
 
 volumes:
   postgres_data:

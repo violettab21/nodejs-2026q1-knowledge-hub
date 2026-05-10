@@ -25,58 +25,71 @@ export class RagService {
     private chatStorage: ChatHistoryService,
   ) {}
   async buildVector(reindexDTO: ReindexRequestDTO) {
-    const { articlesToIndex, articlesToRemoveFromIndex } =
-      await this.getArticlesListToIndex(reindexDTO);
-    await this.removeStaleIndexes(articlesToRemoveFromIndex);
-    const articlesWithVectorsInChunks = await Promise.all(
-      articlesToIndex.map(async (article) => {
-        const isIndexExists = await this.vectorDBService.isPointExists(
-          article.id,
-        );
-        if (isIndexExists) {
-          console.log('Index for exists for', article.id);
-          const points = await this.vectorDBService.getPoints(article.id);
+    try {
+      const { articlesToIndex, articlesToRemoveFromIndex } =
+        await this.getArticlesListToIndex(reindexDTO);
+      await this.removeStaleIndexes(articlesToRemoveFromIndex);
+      const articlesWithVectorsInChunks = await Promise.all(
+        articlesToIndex.map(async (article) => {
+          const isIndexExists = await this.vectorDBService.isPointExists(
+            article.id,
+          );
+          if (isIndexExists) {
+            console.log('Index for exists for', article.id);
+            const points = await this.vectorDBService.getPoints(article.id);
 
-          if (points[0].payload.updatedAt !== article.updatedAt) {
-            console.log('Article was updated, removing indexes', article.id);
-            await this.vectorDBService.deletePoints(article.id);
-          } else {
-            console.log(
-              'Article was not updated, should skep index building',
-              article.id,
-            );
-            return null;
+            if (points[0].payload.updatedAt !== article.updatedAt) {
+              console.log('Article was updated, removing indexes', article.id);
+              await this.vectorDBService.deletePoints(article.id);
+            } else {
+              console.log(
+                'Article was not updated, should skep index building',
+                article.id,
+              );
+              return null;
+            }
           }
+          const chunks = getChunks(article.content, chunkSize, overlap);
+          const chunksWithVectors = await Promise.all(
+            chunks.map(async (chunk) => {
+              const vector = await this.buildEmbedding(chunk);
+              return {
+                id: randomUUID(),
+                vector: vector.values,
+                payload: { ...article, chunk: chunk },
+              };
+            }),
+          );
+          return chunksWithVectors;
+        }),
+      );
+      const chunksIndexed = articlesWithVectorsInChunks
+        .flat()
+        .filter((value) => value !== null);
+
+      if (chunksIndexed.length > 0) {
+        await this.vectorDBService.addArticleIndex(chunksIndexed);
+      }
+      return {
+        indexedArticles: articlesWithVectorsInChunks.filter(
+          (value) => value !== null,
+        ).length,
+        indexedChunks: chunksIndexed.length,
+        vectorCollection: COLLECTION_NAME_ARTICLES,
+      };
+    } catch (err) {
+      console.log('error', err);
+      console.log(Object.keys(err));
+      console.log(typeof err);
+      if (typeof err === 'object' && 'status' in err) {
+        const status = err.status;
+        if (status === 500 || status === 503) {
+          console.log('unavailable');
         }
-        const chunks = getChunks(article.content, chunkSize, overlap);
-        const chunksWithVectors = await Promise.all(
-          chunks.map(async (chunk) => {
-            const vector = await this.buildEmbedding(chunk);
-            return {
-              id: randomUUID(),
-              vector: vector.values,
-              payload: { ...article, chunk: chunk },
-            };
-          }),
-        );
-        return chunksWithVectors;
-      }),
-    );
-    const chunksIndexed = articlesWithVectorsInChunks
-      .flat()
-      .filter((value) => value !== null);
+      }
 
-    if (chunksIndexed.length > 0) {
-      await this.vectorDBService.addArticleIndex(chunksIndexed);
+      throw err;
     }
-
-    return {
-      indexedArticles: articlesWithVectorsInChunks.filter(
-        (value) => value !== null,
-      ).length,
-      indexedChunks: chunksIndexed.length,
-      vectorCollection: COLLECTION_NAME_ARTICLES,
-    };
   }
 
   async removeStaleIndexes(articles: string[]) {
@@ -88,118 +101,139 @@ export class RagService {
   }
 
   async getArticlesListToIndex(reindexDTO: ReindexRequestDTO) {
-    const onlyPublished = reindexDTO.onlyPublished ?? true;
-    const articleList = reindexDTO.articleIds;
-    const status = onlyPublished ? ArticleStatus.PUBLISHED : undefined;
-    let articlesToRemoveFromIndex = [];
-    const allArticles = (await this.articlesService.findAll(status)) as {
-      tags: string[];
-      createdAt: number;
-      updatedAt: number;
-      id: string;
-      title: string;
-      content: string;
-      authorId: string | null;
-      categoryId: string | null;
-      status: ArticleStatus;
-    }[];
-    let articlesToIndex = allArticles;
-    if (articleList) {
-      articlesToIndex = allArticles.filter((article) =>
-        articleList.includes(article.id),
-      );
-      articlesToRemoveFromIndex = articleList.filter(
-        (articleId) => !allArticles.find((article) => article.id === articleId),
-      );
-    } else {
-      const allExistingPoints = await this.vectorDBService.getAllPoints();
-      const pointsFilteredByStatus = allExistingPoints.filter((point) => {
-        if (status) {
-          return point.payload.status === status;
-        } else return true;
-      });
-      const articlesIds = pointsFilteredByStatus.map(
-        (point) => point.payload.id,
-      );
-      const uniqueIds = new Set(articlesIds);
-      const array = Array.from(uniqueIds);
-      articlesToRemoveFromIndex = array.filter(
-        (articleId) => !allArticles.find((article) => article.id === articleId),
-      );
+    try {
+      const onlyPublished = reindexDTO.onlyPublished ?? true;
+      const articleList = reindexDTO.articleIds;
+      const status = onlyPublished ? ArticleStatus.PUBLISHED : undefined;
+      let articlesToRemoveFromIndex = [];
+      const allArticles = (await this.articlesService.findAll(status)) as {
+        tags: string[];
+        createdAt: number;
+        updatedAt: number;
+        id: string;
+        title: string;
+        content: string;
+        authorId: string | null;
+        categoryId: string | null;
+        status: ArticleStatus;
+      }[];
+      let articlesToIndex = allArticles;
+      if (articleList) {
+        articlesToIndex = allArticles.filter((article) =>
+          articleList.includes(article.id),
+        );
+        articlesToRemoveFromIndex = articleList.filter(
+          (articleId) =>
+            !allArticles.find((article) => article.id === articleId),
+        );
+      } else {
+        const allExistingPoints = await this.vectorDBService.getAllPoints();
+        const pointsFilteredByStatus = allExistingPoints.filter((point) => {
+          if (status) {
+            return point.payload.status === status;
+          } else return true;
+        });
+        const articlesIds = pointsFilteredByStatus.map(
+          (point) => point.payload.id,
+        );
+        const uniqueIds = new Set(articlesIds);
+        const array = Array.from(uniqueIds);
+        articlesToRemoveFromIndex = array.filter(
+          (articleId) =>
+            !allArticles.find((article) => article.id === articleId),
+        );
+      }
+      return {
+        articlesToIndex: articlesToIndex,
+        articlesToRemoveFromIndex: articlesToRemoveFromIndex,
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
     }
-    return {
-      articlesToIndex: articlesToIndex,
-      articlesToRemoveFromIndex: articlesToRemoveFromIndex,
-    };
   }
 
   async removeIndex(articleId: string) {
-    return await this.vectorDBService.deletePoints(articleId);
+    try {
+      return await this.vectorDBService.deletePoints(articleId);
+    } catch (err) {
+      throw err;
+    }
   }
 
   async search(searchDto: RagSearchRequestDTO) {
-    const { query, limit = 5, ...rest } = searchDto;
-    const queryVector = await this.buildEmbedding(query);
-    const searchRes = await this.vectorDBService.searchByQuery(
-      queryVector.values,
-      limit,
-      rest,
-    );
-    const results = searchRes.map((record) => {
+    try {
+      const { query, limit = 5, ...rest } = searchDto;
+      const queryVector = await this.buildEmbedding(query);
+      const searchRes = await this.vectorDBService.searchByQuery(
+        queryVector.values,
+        limit,
+        rest,
+      );
+      const results = searchRes.map((record) => {
+        return {
+          articleId: record.payload.id,
+          articleTitle: record.payload.title,
+          chunk: record.payload.chunk,
+          similarity: record.score,
+        };
+      });
       return {
-        articleId: record.payload.id,
-        articleTitle: record.payload.title,
-        chunk: record.payload.chunk,
-        similarity: record.score,
+        results: results,
       };
-    });
-    return {
-      results: results,
-    };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async chat(chatDTO: RagChatRequestDTO) {
-    const { question, conversationId } = chatDTO;
-    const isChatExist = this.chatStorage.isChatExist(conversationId);
-    let history = [];
-    let chatId: string;
-    if (isChatExist) {
-      chatId = conversationId;
-      history = this.chatStorage.getChatById(chatId).history;
-    }
-    const chat = this.ai.chats.create({
-      model: model,
-      history: history,
-    });
+    try {
+      const { question, conversationId } = chatDTO;
+      const isChatExist = this.chatStorage.isChatExist(conversationId);
+      let history = [];
+      let chatId: string;
+      if (isChatExist) {
+        chatId = conversationId;
+        history = this.chatStorage.getChatById(chatId).history;
+      }
+      const chat = this.ai.chats.create({
+        model: model,
+        history: history,
+      });
 
-    const contextData = await this.search({ query: question });
-    const chunks = contextData.results.map((result) => result.chunk);
-    const sources = contextData.results.map((result) => {
-      return {
-        articleId: result.articleId,
-        articleTitle: result.articleTitle,
-        relevantChunk: result.chunk,
+      const contextData = await this.search({ query: question });
+      const chunks = contextData.results.map((result) => result.chunk);
+      const sources = contextData.results.map((result) => {
+        return {
+          articleId: result.articleId,
+          articleTitle: result.articleTitle,
+          relevantChunk: result.chunk,
+        };
+      });
+
+      const answer = await chat.sendMessage({
+        message: generatePrompt(question, chunks.join('/n')),
+      });
+
+      const historyData = chat.getHistory();
+
+      if (!isChatExist) {
+        chatId = randomUUID();
+        this.chatStorage.saveChatHistory(chatId, historyData);
+      } else {
+        this.chatStorage.updateChatHistory(conversationId, historyData);
+      }
+      const response = {
+        answer: answer.candidates[0].content.parts[0].text,
+        sources: sources,
+        conversationId: chatId,
       };
-    });
-
-    const answer = await chat.sendMessage({
-      message: generatePrompt(question, chunks.join('/n')),
-    });
-
-    const historyData = chat.getHistory();
-
-    if (!isChatExist) {
-      chatId = randomUUID();
-      this.chatStorage.saveChatHistory(chatId, historyData);
-    } else {
-      this.chatStorage.updateChatHistory(conversationId, historyData);
+      return response;
+    } catch (err) {
+      console.log(err);
+      throw err;
     }
-    const response = {
-      answer: answer.candidates[0].content.parts[0].text,
-      sources: sources,
-      conversationId: chatId,
-    };
-    return response;
   }
 
   getChatHistory(conversationId: string) {
@@ -211,12 +245,17 @@ export class RagService {
   }
 
   async buildEmbedding(data: string) {
-    const result = await this.ai.models.embedContent({
-      model: 'gemini-embedding-2',
-      contents: data,
-      config: { taskType: 'RETRIEVAL_DOCUMENT' },
-    });
+    try {
+      const result = await this.ai.models.embedContent({
+        model: 'gemini-embedding-2',
+        contents: data,
+        config: { taskType: 'RETRIEVAL_DOCUMENT' },
+      });
 
-    return result.embeddings[0];
+      return result.embeddings[0];
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 }

@@ -9,10 +9,6 @@ interface ArticlePoint {
   payload: any;
 }
 
-/*interface Payload extends Article {
-  chunk: string;
-}*/
-
 interface Filter {
   articleStatus?: 'draft' | 'published' | 'archived';
   categoryId?: string;
@@ -23,7 +19,7 @@ interface Filter {
 export class VectorDBService {
   private readonly client: QdrantClient;
   constructor() {
-    this.client = new QdrantClient({ host: 'localhost', port: 6333 });
+    this.client = new QdrantClient({ host: 'qdrant', port: 6333 });
     void this.createCollection(COLLECTION_NAME_ARTICLES);
   }
 
