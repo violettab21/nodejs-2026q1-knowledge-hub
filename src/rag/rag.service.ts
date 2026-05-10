@@ -9,9 +9,11 @@ import { COLLECTION_NAME_ARTICLES, VectorDBService } from './vectorDB.service';
 import { randomUUID } from 'node:crypto';
 import { getChunks } from './utils/chunkContent';
 import 'dotenv/config';
+import { generatePrompt } from './prompts/prompts';
 
 const chunkSize = Number(process.env.RAG_CHUNK_SIZE) || 800;
 const overlap = Number(process.env.RAG_CHUNK_OVERLAP) || 200;
+const model = process.env.GEMINI_MODEL;
 
 @Injectable()
 export class RagService {
@@ -92,8 +94,37 @@ export class RagService {
     };
   }
 
-  chat(chatDTO: RagChatRequestDTO) {
-    return `This action returns a chat result`;
+  async chat(chatDTO: RagChatRequestDTO) {
+    const { question, conversationId } = chatDTO;
+    console.log(conversationId);
+    const chat = this.ai.chats.create({
+      model: model,
+      history: [],
+    });
+    console.log(chat);
+
+    const contextData = await this.search({ query: question });
+    const chunks = contextData.results.map((result) => result.chunk);
+    const sources = contextData.results.map((result) => {
+      return {
+        articleId: result.articleId,
+        articleTitle: result.articleTitle,
+        relevantChunk: result.chunk,
+      };
+    });
+    console.log(chunks);
+
+    const answer = await chat.sendMessage({
+      message: generatePrompt(question, chunks.join('/n')),
+    });
+    const response = {
+      answer: answer.candidates[0].content.parts[0].text,
+      sources: sources,
+      conversationId: 0,
+    };
+    const history = chat.getHistory();
+    console.log('history', history);
+    return response;
   }
 
   async buildEmbedding(data: string) {

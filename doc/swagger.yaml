@@ -715,12 +715,8 @@ paths:
             schema:
               $ref: '#/components/schemas/RagChatRequestDTO'
       responses:
-        '201':
+        '200':
           description: ''
-          content:
-            application/json:
-              schema:
-                type: string
 info:
   title: Knowledge Hub
   description: The Knowledge Hub API description

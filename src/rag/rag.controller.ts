@@ -19,7 +19,8 @@ export class RagController {
     return await this.ragService.search(searchDto);
   }
   @Post('chat')
-  chat(@Body() chatDTO: RagChatRequestDTO) {
+  @HttpCode(200)
+  async chat(@Body() chatDTO: RagChatRequestDTO) {
     return this.ragService.chat(chatDTO);
   }
 }
