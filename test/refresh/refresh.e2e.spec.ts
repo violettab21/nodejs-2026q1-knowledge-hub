@@ -46,7 +46,7 @@ describe('Refresh (e2e)', () => {
     expect(validate(userId)).toBeTruthy();
     expect(role).toBeDefined();
     expect(typeof role).toBe('string');
-    expect(['admin', 'editor', 'viewer']).toContain(role);
+    expect(['ADMIN', 'EDITOR', 'VIEWER']).toContain(role);
     expect(exp).toBeDefined();
     expect(typeof exp).toBe('number');
     expect(exp).toBeGreaterThan(0);
@@ -99,9 +99,9 @@ describe('Refresh (e2e)', () => {
       expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
     });
 
-    it('should fail with 401 (no refresh token)', async () => {
+    it('should fail with 400 (no refresh token)', async () => {
       const response = await request.post(authRoutes.refresh).send();
-      expect(response.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it('should fail with 403 (expired refresh token)', async () => {

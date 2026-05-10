@@ -1,0 +1,1079 @@
+openapi: 3.0.0
+paths:
+  /:
+    get:
+      operationId: AppController_getHello
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+  /user:
+    post:
+      operationId: UsersController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Bad Request
+      tags: &ref_0
+        - User
+    get:
+      operationId: UsersController_findAll
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            type: number
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            enum:
+              - id
+              - login
+              - role
+              - createdAt
+              - updatedAt
+            type: string
+        - name: order
+          required: false
+          in: query
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Bad Request
+      tags: *ref_0
+  /user/{id}:
+    get:
+      operationId: UsersController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      tags: *ref_0
+    put:
+      operationId: UsersController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      tags: *ref_0
+    delete:
+      operationId: UsersController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      tags: *ref_0
+  /article:
+    post:
+      operationId: ArticlesController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateArticleDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '400':
+          description: Bad Request
+        '422':
+          description: Unprocessed Entity
+      tags: &ref_1
+        - Article
+    get:
+      operationId: ArticlesController_findAll
+      parameters:
+        - name: status
+          required: false
+          in: query
+          schema:
+            enum:
+              - DRAFT
+              - PUBLISHED
+              - ARCHIVED
+            type: string
+        - name: categoryId
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: tag
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            type: number
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            enum:
+              - id
+              - title
+              - content
+              - status
+              - authorId
+              - categoryId
+              - tags
+              - createdAt
+              - updatedAt
+            type: string
+        - name: order
+          required: false
+          in: query
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+        '400':
+          description: Bad Request
+      tags: *ref_1
+  /article/{id}:
+    get:
+      operationId: ArticlesController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      tags: *ref_1
+    put:
+      operationId: ArticlesController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateArticleDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '422':
+          description: Unprocessed Entity
+      tags: *ref_1
+    delete:
+      operationId: ArticlesController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      tags: *ref_1
+  /category:
+    post:
+      operationId: CategoriesController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad Request
+      tags: &ref_2
+        - Category
+    get:
+      operationId: CategoriesController_findAll
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            type: number
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            enum:
+              - id
+              - name
+              - description
+            type: string
+        - name: order
+          required: false
+          in: query
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad Request
+      tags: *ref_2
+  /category/{id}:
+    get:
+      operationId: CategoriesController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      tags: *ref_2
+    put:
+      operationId: CategoriesController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategoryDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      tags: *ref_2
+    delete:
+      operationId: CategoriesController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      tags: *ref_2
+  /comment:
+    post:
+      operationId: CommentsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Bad Request
+        '422':
+          description: Unprocessed Entity
+      tags: &ref_3
+        - Comment
+    get:
+      operationId: CommentsController_findAll
+      parameters:
+        - name: articleId
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            type: number
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            enum:
+              - id
+              - content
+              - articleId
+              - authorId
+              - createdAt
+            type: string
+        - name: order
+          required: false
+          in: query
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '400':
+          description: Bad Request
+      tags: *ref_3
+  /comment/{id}:
+    get:
+      operationId: CommentsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      tags: *ref_3
+    delete:
+      operationId: CommentsController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      tags: *ref_3
+  /auth/login:
+    post:
+      operationId: AuthController_login
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDTO'
+      responses:
+        '200':
+          description: ''
+  /auth/signUp:
+    post:
+      operationId: AuthController_signUp
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpDTO'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+  /auth/refresh:
+    post:
+      operationId: AuthController_refresh
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshDTO'
+      responses:
+        '200':
+          description: ''
+  /ai/articles/{articleId}/summarize:
+    post:
+      operationId: AiController_summarizeArticles
+      parameters:
+        - name: articleId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SummarizeArticleAiDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+  /ai/articles/{articleId}/translate:
+    post:
+      operationId: AiController_translateArticles
+      parameters:
+        - name: articleId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranslateArticleAiDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+  /ai/articles/{articleId}/analyze:
+    post:
+      operationId: AiController_analyzeArticles
+      parameters:
+        - name: articleId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyzeArticleAiDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+  /ai/generate:
+    post:
+      operationId: AiController_generate
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateDto'
+      responses:
+        '200':
+          description: ''
+  /ai/usage:
+    get:
+      operationId: AiController_usage
+      parameters:
+        - name: endpoint
+          required: true
+          in: query
+          schema:
+            enum:
+              - summarize
+              - translate
+              - analyze
+              - generate
+            type: string
+      responses:
+        '200':
+          description: ''
+  /ai/rag/index:
+    post:
+      operationId: RagController_index
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReindexRequestDTO'
+      responses:
+        '200':
+          description: ''
+  /ai/rag/index/articles/{articleId}:
+    delete:
+      operationId: RagController_removeIndex
+      parameters:
+        - name: articleId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+  /ai/rag/search:
+    post:
+      operationId: RagController_search
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RagSearchRequestDTO'
+      responses:
+        '200':
+          description: ''
+  /ai/rag/chat:
+    post:
+      operationId: RagController_chat
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RagChatRequestDTO'
+      responses:
+        '200':
+          description: ''
+  /ai/rag/chat/{conversationId}/history:
+    get:
+      operationId: RagController_getChatHistory
+      parameters:
+        - name: conversationId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+info:
+  title: Knowledge Hub
+  description: The Knowledge Hub API description
+  version: '1.0'
+  contact: {}
+tags:
+  - name: Knowledge Hub
+    description: ''
+servers: []
+components:
+  schemas:
+    CreateUserDto:
+      type: object
+      properties:
+        login:
+          type: string
+          description: User login
+          example: user1
+        password:
+          type: string
+          description: User password
+          example: '123456'
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - EDITOR
+            - VIEWER
+          description: User role
+          example: admin
+      required:
+        - login
+        - password
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User Id (UID)
+          example: e30c4ac7-5be6-410a-ac61-c59e3eb5ea4f
+        login:
+          type: string
+        role:
+          type: object
+        createdAt:
+          type: number
+        updatedAt:
+          type: number
+      required:
+        - id
+        - login
+        - role
+        - createdAt
+        - updatedAt
+    UpdateUserDto:
+      type: object
+      properties:
+        oldPassword:
+          type: string
+        newPassword:
+          type: string
+      required:
+        - oldPassword
+        - newPassword
+    CreateArticleDto:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        status:
+          type: string
+          enum: &ref_4
+            - DRAFT
+            - PUBLISHED
+            - ARCHIVED
+        authorId:
+          type: string
+          nullable: true
+        categoryId:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+        - title
+        - content
+    Article:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        status:
+          type: object
+        authorId:
+          type: string
+          nullable: true
+        categoryId:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: number
+        updatedAt:
+          type: number
+      required:
+        - id
+        - title
+        - content
+        - authorId
+        - categoryId
+        - createdAt
+        - updatedAt
+    UpdateArticleDto:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        status:
+          type: string
+          enum: *ref_4
+        authorId:
+          type: string
+          nullable: true
+        categoryId:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+        - title
+        - content
+    CreateCategoryDto:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+        - description
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - name
+        - description
+    UpdateCategoryDto:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+        - description
+    CreateCommentDto:
+      type: object
+      properties:
+        content:
+          type: string
+          description: Comment content
+          example: Great Article
+        articleId:
+          type: string
+          description: articleId
+          example: 61ff1183-ef8f-4e21-b9e5-01f7463ad139
+        authorId:
+          type: string
+          nullable: true
+          description: authorId
+          example: 61ff1183-ef8f-4e21-b9e5-01f7463ad139
+      required:
+        - content
+        - articleId
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User Id (UID)
+          example: e30c4ac7-5be6-410a-ac61-c59e3eb5ea4f
+        content:
+          type: string
+        articleId:
+          type: string
+        authorId:
+          type: string
+          nullable: true
+        createdAt:
+          type: number
+      required:
+        - id
+        - content
+        - articleId
+        - authorId
+        - createdAt
+    LoginDTO:
+      type: object
+      properties:
+        login:
+          type: string
+          description: User login
+          example: user1
+        password:
+          type: string
+          description: User password
+          example: '123456'
+      required:
+        - login
+        - password
+    SignUpDTO:
+      type: object
+      properties:
+        login:
+          type: string
+          description: User login
+          example: user1
+        password:
+          type: string
+          description: User password
+          example: '123456'
+      required:
+        - login
+        - password
+    RefreshDTO:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+      required:
+        - refreshToken
+    SummarizeArticleAiDto:
+      type: object
+      properties:
+        maxLength:
+          type: string
+          enum:
+            - short
+            - medium
+            - detailed
+    TranslateArticleAiDto:
+      type: object
+      properties:
+        targetLanguage:
+          type: string
+        sourceLanguage:
+          type: string
+      required:
+        - targetLanguage
+    AnalyzeArticleAiDto:
+      type: object
+      properties:
+        task:
+          type: string
+          enum:
+            - review
+            - bugs
+            - optimize
+            - explain
+    GenerateDto:
+      type: object
+      properties:
+        prompt:
+          type: string
+      required:
+        - prompt
+    ReindexRequestDTO:
+      type: object
+      properties:
+        onlyPublished:
+          type: boolean
+        articleIds:
+          type: array
+          items:
+            type: string
+    RagSearchRequestDTO:
+      type: object
+      properties:
+        query:
+          type: string
+        limit:
+          type: number
+          maximum: 20
+        articleStatus:
+          type: string
+          enum:
+            - draft
+            - published
+            - archived
+        categoryId:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+        - query
+    RagChatRequestDTO:
+      type: object
+      properties:
+        question:
+          type: string
+        conversationId:
+          type: string
+      required:
+        - question
