@@ -198,6 +198,15 @@ If you are still facing location related issue when running in docker set up pro
 3. In file ai.module.ts uncomment proxy set up for HTTP Module.
 4. Check instruction above how to run app and db in docker
 
+## RAG flow
+
+1. To start working with RAG endpoints make sure that articles are created and use POST /ai/rag/index endpoint to create indexes for articles
+2. If no payload provided for POST /ai/rag/index, vector indexes will be created for all existing published articles. If vector storage contains articles that were removed/updated, it will be reindexed (for updated articles -> reindexed, for removed articles -> removed)
+3. During indexing articles content split by chunks, vectors created for each chunk
+4. Check http://localhost:6333/ to check qdrant storage
+5. After creating vector indexes, search and chat can be used
+6. When chat is used without conversationId -> new chat is created. Take conversationId from response, to proceed with existing chat.
+
 ## Testing
 
 Note: make sure that dependencies installed and prisma generated
