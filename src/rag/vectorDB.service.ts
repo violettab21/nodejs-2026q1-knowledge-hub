@@ -67,4 +67,41 @@ export class VectorDBService {
     const searchResult = result.points;
     return searchResult;
   }
+
+  async deletePoints(articleId: string) {
+    const isExist = await this.isPointExists(articleId);
+    if (isExist) {
+      return await this.client.delete(COLLECTION_NAME_ARTICLES, {
+        filter: {
+          must: [
+            {
+              key: 'id',
+              match: {
+                value: articleId,
+              },
+            },
+          ],
+        },
+      });
+    } else {
+      return null;
+    }
+  }
+
+  async isPointExists(articleId: string) {
+    const points = await this.client.scroll(COLLECTION_NAME_ARTICLES, {
+      filter: {
+        must: [
+          {
+            key: 'id',
+            match: {
+              value: articleId,
+            },
+          },
+        ],
+      },
+    });
+    console.log('Points exists:', points);
+    return points.points.length > 0;
+  }
 }

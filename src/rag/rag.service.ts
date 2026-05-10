@@ -75,6 +75,10 @@ export class RagService {
     };
   }
 
+  async removeIndex(articleId: string) {
+    return await this.vectorDBService.deletePoints(articleId);
+  }
+
   async search(searchDto: RagSearchRequestDTO) {
     const { query, limit = 5, ...rest } = searchDto;
     const queryVector = await this.buildEmbedding(query);

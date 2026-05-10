@@ -1,4 +1,10 @@
-import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class ReindexRequestDTO {
   @IsOptional()
@@ -8,4 +14,9 @@ export class ReindexRequestDTO {
   @IsArray()
   @IsString({ each: true })
   articleIds?: string[];
+}
+
+export class IndexParamsDTO {
+  @IsUUID()
+  articleId: string;
 }

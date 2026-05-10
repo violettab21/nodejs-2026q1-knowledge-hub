@@ -691,6 +691,18 @@ paths:
       responses:
         '200':
           description: ''
+  /ai/rag/index/articles/{articleId}:
+    delete:
+      operationId: RagController_removeIndex
+      parameters:
+        - name: articleId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
   /ai/rag/search:
     post:
       operationId: RagController_search

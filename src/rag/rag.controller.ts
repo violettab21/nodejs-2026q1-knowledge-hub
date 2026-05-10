@@ -1,6 +1,14 @@
-import { Controller, Post, Body, HttpCode, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  Get,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { RagService } from './rag.service';
-import { ReindexRequestDTO } from './dto/reindex-request.dto';
+import { IndexParamsDTO, ReindexRequestDTO } from './dto/reindex-request.dto';
 import { RagSearchRequestDTO } from './dto/search.dto';
 import { ChatParams, RagChatRequestDTO } from './dto/rag-chat-request.dto';
 import { NotFoundError } from 'src/errors/NotFoundError';
@@ -14,6 +22,19 @@ export class RagController {
   async index(@Body() reindexDTO: ReindexRequestDTO) {
     return await this.ragService.buildVector(reindexDTO);
   }
+
+  @Delete('index/articles/:articleId')
+  @HttpCode(204)
+  async removeIndex(@Param() indexParams: IndexParamsDTO) {
+    const result = await this.ragService.removeIndex(indexParams.articleId);
+    console.log(result);
+    if (!result) {
+      throw new NotFoundError(
+        `Vector Indexes are not found for article ${indexParams.articleId}`,
+      );
+    }
+  }
+
   @Post('search')
   @HttpCode(200)
   async search(@Body() searchDto: RagSearchRequestDTO) {
