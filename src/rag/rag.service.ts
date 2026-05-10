@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { getChunks } from './utils/chunkContent';
 import 'dotenv/config';
 import { generatePrompt } from './prompts/prompts';
+import { ChatHistoryService } from './chatHistory.service';
 
 const chunkSize = Number(process.env.RAG_CHUNK_SIZE) || 800;
 const overlap = Number(process.env.RAG_CHUNK_OVERLAP) || 200;
@@ -21,6 +22,7 @@ export class RagService {
   constructor(
     private articlesService: ArticlesService,
     private vectorDBService: VectorDBService,
+    private chatStorage: ChatHistoryService,
   ) {}
   async buildVector(reindexDTO: ReindexRequestDTO) {
     const onlyPublished = reindexDTO.onlyPublished ?? true;
@@ -96,12 +98,17 @@ export class RagService {
 
   async chat(chatDTO: RagChatRequestDTO) {
     const { question, conversationId } = chatDTO;
-    console.log(conversationId);
+    const isChatExist = this.chatStorage.isChatExist(conversationId);
+    let history = [];
+    let chatId: string;
+    if (isChatExist) {
+      chatId = conversationId;
+      history = this.chatStorage.getChatById(chatId).history;
+    }
     const chat = this.ai.chats.create({
       model: model,
-      history: [],
+      history: history,
     });
-    console.log(chat);
 
     const contextData = await this.search({ query: question });
     const chunks = contextData.results.map((result) => result.chunk);
@@ -112,18 +119,24 @@ export class RagService {
         relevantChunk: result.chunk,
       };
     });
-    console.log(chunks);
 
     const answer = await chat.sendMessage({
       message: generatePrompt(question, chunks.join('/n')),
     });
+
+    const historyData = chat.getHistory();
+
+    if (!isChatExist) {
+      chatId = randomUUID();
+      this.chatStorage.saveChatHistory(chatId, historyData);
+    } else {
+      this.chatStorage.updateChatHistory(conversationId, historyData);
+    }
     const response = {
       answer: answer.candidates[0].content.parts[0].text,
       sources: sources,
-      conversationId: 0,
+      conversationId: chatId,
     };
-    const history = chat.getHistory();
-    console.log('history', history);
     return response;
   }
 

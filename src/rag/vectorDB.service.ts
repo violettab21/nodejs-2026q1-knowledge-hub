@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import 'dotenv/config';
 import { QdrantClient } from '@qdrant/js-client-rest';
-/*import { Article } from 'generated/prisma/client';*/
-
 export const COLLECTION_NAME_ARTICLES = 'articles_vectors';
 
 interface ArticlePoint {
