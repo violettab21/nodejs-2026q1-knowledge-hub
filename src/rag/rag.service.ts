@@ -25,9 +25,73 @@ export class RagService {
     private chatStorage: ChatHistoryService,
   ) {}
   async buildVector(reindexDTO: ReindexRequestDTO) {
+    const { articlesToIndex, articlesToRemoveFromIndex } =
+      await this.getArticlesListToIndex(reindexDTO);
+    await this.removeStaleIndexes(articlesToRemoveFromIndex);
+    const articlesWithVectorsInChunks = await Promise.all(
+      articlesToIndex.map(async (article) => {
+        const isIndexExists = await this.vectorDBService.isPointExists(
+          article.id,
+        );
+        if (isIndexExists) {
+          console.log('Index for exists for', article.id);
+          const points = await this.vectorDBService.getPoints(article.id);
+
+          if (points[0].payload.updatedAt !== article.updatedAt) {
+            console.log('Article was updated, removing indexes', article.id);
+            await this.vectorDBService.deletePoints(article.id);
+          } else {
+            console.log(
+              'Article was not updated, should skep index building',
+              article.id,
+            );
+            return null;
+          }
+        }
+        const chunks = getChunks(article.content, chunkSize, overlap);
+        const chunksWithVectors = await Promise.all(
+          chunks.map(async (chunk) => {
+            const vector = await this.buildEmbedding(chunk);
+            return {
+              id: randomUUID(),
+              vector: vector.values,
+              payload: { ...article, chunk: chunk },
+            };
+          }),
+        );
+        return chunksWithVectors;
+      }),
+    );
+    const chunksIndexed = articlesWithVectorsInChunks
+      .flat()
+      .filter((value) => value !== null);
+
+    if (chunksIndexed.length > 0) {
+      await this.vectorDBService.addArticleIndex(chunksIndexed);
+    }
+
+    return {
+      indexedArticles: articlesWithVectorsInChunks.filter(
+        (value) => value !== null,
+      ).length,
+      indexedChunks: chunksIndexed.length,
+      vectorCollection: COLLECTION_NAME_ARTICLES,
+    };
+  }
+
+  async removeStaleIndexes(articles: string[]) {
+    await Promise.all(
+      articles.map(
+        async (articleId) => await this.vectorDBService.deletePoints(articleId),
+      ),
+    );
+  }
+
+  async getArticlesListToIndex(reindexDTO: ReindexRequestDTO) {
     const onlyPublished = reindexDTO.onlyPublished ?? true;
     const articleList = reindexDTO.articleIds;
     const status = onlyPublished ? ArticleStatus.PUBLISHED : undefined;
+    let articlesToRemoveFromIndex = [];
     const allArticles = (await this.articlesService.findAll(status)) as {
       tags: string[];
       createdAt: number;
@@ -44,34 +108,28 @@ export class RagService {
       articlesToIndex = allArticles.filter((article) =>
         articleList.includes(article.id),
       );
+      articlesToRemoveFromIndex = articleList.filter(
+        (articleId) => !allArticles.find((article) => article.id === articleId),
+      );
+    } else {
+      const allExistingPoints = await this.vectorDBService.getAllPoints();
+      const pointsFilteredByStatus = allExistingPoints.filter((point) => {
+        if (status) {
+          return point.payload.status === status;
+        } else return true;
+      });
+      const articlesIds = pointsFilteredByStatus.map(
+        (point) => point.payload.id,
+      );
+      const uniqueIds = new Set(articlesIds);
+      const array = Array.from(uniqueIds);
+      articlesToRemoveFromIndex = array.filter(
+        (articleId) => !allArticles.find((article) => article.id === articleId),
+      );
     }
-    const articlesWithVectorsInChunks = await Promise.all(
-      articlesToIndex.map(async (article) => {
-        const chunks = getChunks(article.content, chunkSize, overlap);
-        const chunksWithVectors = await Promise.all(
-          chunks.map(async (chunk) => {
-            const vector = await this.buildEmbedding(chunk);
-            return {
-              id: randomUUID(),
-              vector: vector.values,
-              payload: { ...article, chunk: chunk },
-            };
-          }),
-        );
-        /*const vector = await this.buildEmbedding(article.content);
-        console.log('vector', vector);*/
-        return chunksWithVectors;
-      }),
-    );
-    const chunksIndexed = articlesWithVectorsInChunks.flat();
-    await this.vectorDBService.addArticleIndex(chunksIndexed);
-
-    console.log(articlesToIndex);
-
     return {
-      indexedArticles: articlesWithVectorsInChunks.length,
-      indexedChunks: chunksIndexed.length,
-      vectorCollection: COLLECTION_NAME_ARTICLES,
+      articlesToIndex: articlesToIndex,
+      articlesToRemoveFromIndex: articlesToRemoveFromIndex,
     };
   }
 

@@ -101,7 +101,32 @@ export class VectorDBService {
         ],
       },
     });
-    console.log('Points exists:', points);
     return points.points.length > 0;
+  }
+
+  async getPoints(articleId: string) {
+    const points = await this.client.scroll(COLLECTION_NAME_ARTICLES, {
+      filter: {
+        must: [
+          {
+            key: 'id',
+            match: {
+              value: articleId,
+            },
+          },
+        ],
+      },
+      with_payload: true,
+    });
+
+    return points.points;
+  }
+
+  async getAllPoints() {
+    const points = await this.client.scroll(COLLECTION_NAME_ARTICLES, {
+      with_payload: true,
+    });
+
+    return points.points;
   }
 }
