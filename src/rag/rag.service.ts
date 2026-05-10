@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ReindexRequestDTO } from './dto/reindex-request.dto';
 import { RagSearchRequestDTO } from './dto/search.dto';
 import { RagChatRequestDTO } from './dto/rag-chat-request.dto';
-import { GoogleGenAI } from '@google/genai';
+import { ApiError, GoogleGenAI } from '@google/genai';
 import { ArticlesService } from 'src/articles/articles.service';
 import { ArticleStatus } from 'generated/prisma/enums';
 import { COLLECTION_NAME_ARTICLES, VectorDBService } from './vectorDB.service';
@@ -15,6 +15,7 @@ import { ChatHistoryService } from './chatHistory.service';
 const chunkSize = Number(process.env.RAG_CHUNK_SIZE) || 800;
 const overlap = Number(process.env.RAG_CHUNK_OVERLAP) || 200;
 const model = process.env.GEMINI_MODEL;
+const GEMINI_EMBEDDING_MODEL = process.env.GEMINI_EMBEDDING_MODEL;
 
 @Injectable()
 export class RagService {
@@ -78,26 +79,21 @@ export class RagService {
         vectorCollection: COLLECTION_NAME_ARTICLES,
       };
     } catch (err) {
-      console.log('error', err);
-      console.log(Object.keys(err));
-      console.log(typeof err);
-      if (typeof err === 'object' && 'status' in err) {
-        const status = err.status;
-        if (status === 500 || status === 503) {
-          console.log('unavailable');
-        }
-      }
-
-      throw err;
+      this.handleVectorDBError(err);
     }
   }
 
   async removeStaleIndexes(articles: string[]) {
-    await Promise.all(
-      articles.map(
-        async (articleId) => await this.vectorDBService.deletePoints(articleId),
-      ),
-    );
+    try {
+      await Promise.all(
+        articles.map(
+          async (articleId) =>
+            await this.vectorDBService.deletePoints(articleId),
+        ),
+      );
+    } catch (err) {
+      this.handleVectorDBError(err);
+    }
   }
 
   async getArticlesListToIndex(reindexDTO: ReindexRequestDTO) {
@@ -148,8 +144,7 @@ export class RagService {
         articlesToRemoveFromIndex: articlesToRemoveFromIndex,
       };
     } catch (err) {
-      console.log(err);
-      throw err;
+      this.handleVectorDBError(err);
     }
   }
 
@@ -157,7 +152,7 @@ export class RagService {
     try {
       return await this.vectorDBService.deletePoints(articleId);
     } catch (err) {
-      throw err;
+      this.handleVectorDBError(err);
     }
   }
 
@@ -182,8 +177,7 @@ export class RagService {
         results: results,
       };
     } catch (err) {
-      console.log(err);
-      throw err;
+      this.handleVectorDBError(err);
     }
   }
 
@@ -231,7 +225,9 @@ export class RagService {
       };
       return response;
     } catch (err) {
-      console.log(err);
+      if (err instanceof ApiError) {
+        throw new ServiceUnavailableException('Gemini API unavailable');
+      }
       throw err;
     }
   }
@@ -247,15 +243,44 @@ export class RagService {
   async buildEmbedding(data: string) {
     try {
       const result = await this.ai.models.embedContent({
-        model: 'gemini-embedding-2',
+        model: GEMINI_EMBEDDING_MODEL,
         contents: data,
         config: { taskType: 'RETRIEVAL_DOCUMENT' },
       });
 
       return result.embeddings[0];
     } catch (err) {
-      console.log(err);
+      if (err instanceof ApiError) {
+        throw new ServiceUnavailableException(
+          'Unable to create vector. Gemini API unavailable',
+        );
+      }
+
       throw err;
     }
+  }
+
+  handleVectorDBError(err: unknown) {
+    if (
+      typeof err === 'object' &&
+      'status' in err &&
+      'url' in err &&
+      'data' in err
+    ) {
+      const url = err.url;
+      const data = err.data;
+      if (typeof url === 'string' && url.includes('qdrant:6333')) {
+        let errorMessage = 'Qdrant error occurred';
+        if (typeof data === 'object' && 'status' in data) {
+          const dataInfo = data.status;
+          if (typeof dataInfo === 'object' && 'error' in dataInfo) {
+            errorMessage = dataInfo.error as string;
+          }
+        }
+        throw new ServiceUnavailableException(errorMessage);
+      }
+    }
+
+    throw err;
   }
 }

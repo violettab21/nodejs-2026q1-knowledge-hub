@@ -44,7 +44,7 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 After starting the app on port (4000 as default) you access api via http://localhost:4000/.
 Prisma migrate and seed are running automatically.
 
-### Running db only in docker and app locally
+### Running db and qdrant only in docker and app locally
 
 1. Run db in docker via command
 
@@ -52,21 +52,29 @@ Prisma migrate and seed are running automatically.
  docker run --name my_postgres -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -e POSTGRES_DB=postgres -p 5432:5432 -d postgres:16-alpine
 ```
 
-2. Change env variable DATABASE_URL for localhost: postgresql://user:password@localhost:5432/postgres?schema=public
+2. Run qdrant in docker via command
 
-3. Generate Prisma
+```
+  docker run -d -p 6333:6333 qdrant/qdrant
+```
+
+3. Change env variable DATABASE_URL for localhost: postgresql://user:password@localhost:5432/postgres?schema=public
+
+4. Change env variable RAG_VECTOR_DB_URL for localhost: http://localhost:6333
+
+5. Generate Prisma
 
 ```
 npx prisma generate
 ```
 
-4. Migrate Prisma schema
+6. Migrate Prisma schema
 
 ```
 npx prisma migrate dev
 ```
 
-5. Run application
+7. Run application
 
 ```
 npm start
@@ -112,6 +120,12 @@ npm start
 - POST /ai/articles/{articleId}/analyze
 - POST /ai/generate
 - GET /ai/usage
+
+- POST /ai/rag/index
+- POST /ai/rag/search
+- POST /ai/rag/chat
+- GET ai/rag/chat/{conversationId}/history
+- DELETE ai/rag/index/articles/{articleId}
 
 All GET endpoints support optional query parameters for pagination and sorting:
 
@@ -178,6 +192,7 @@ All GET endpoints support optional query parameters for pagination and sorting:
 8. Check instruction above how to run app and db in docker
 
 If you are still facing location related issue when running in docker set up proxy (ex. Fiddler):
+
 1. Download Fiddler if you don't have it
 2. In Fiddler check port where Fiddler listens (Tools -> Options -> Connections)
 3. In file ai.module.ts uncomment proxy set up for HTTP Module.

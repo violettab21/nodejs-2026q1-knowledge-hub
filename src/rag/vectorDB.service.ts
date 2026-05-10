@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import 'dotenv/config';
 import { QdrantClient } from '@qdrant/js-client-rest';
-export const COLLECTION_NAME_ARTICLES = 'articles_vectors';
+
+export const COLLECTION_NAME_ARTICLES = process.env.RAG_VECTOR_COLLECTION;
+const RAG_VECTOR_DB_URL = process.env.RAG_VECTOR_DB_URL;
 
 interface ArticlePoint {
   id: string;
@@ -19,7 +21,7 @@ interface Filter {
 export class VectorDBService {
   private readonly client: QdrantClient;
   constructor() {
-    this.client = new QdrantClient({ host: 'qdrant', port: 6333 });
+    this.client = new QdrantClient({ url: RAG_VECTOR_DB_URL });
     void this.createCollection(COLLECTION_NAME_ARTICLES);
   }
 
