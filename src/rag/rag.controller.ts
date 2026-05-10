@@ -1,8 +1,9 @@
-import { Controller, Post, Body, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, Get, Param } from '@nestjs/common';
 import { RagService } from './rag.service';
 import { ReindexRequestDTO } from './dto/reindex-request.dto';
 import { RagSearchRequestDTO } from './dto/search.dto';
-import { RagChatRequestDTO } from './dto/rag-chat-request.dto';
+import { ChatParams, RagChatRequestDTO } from './dto/rag-chat-request.dto';
+import { NotFoundError } from 'src/errors/NotFoundError';
 
 @Controller('ai/rag')
 export class RagController {
@@ -22,5 +23,16 @@ export class RagController {
   @HttpCode(200)
   async chat(@Body() chatDTO: RagChatRequestDTO) {
     return this.ragService.chat(chatDTO);
+  }
+
+  @Get('chat/:conversationId/history')
+  getChatHistory(@Param() params: ChatParams) {
+    const history = this.ragService.getChatHistory(params.conversationId);
+    if (history) {
+      return history;
+    }
+    throw new NotFoundError(
+      `Chat with conversationId ${params.conversationId} is not found`,
+    );
   }
 }

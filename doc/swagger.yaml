@@ -717,6 +717,24 @@ paths:
       responses:
         '200':
           description: ''
+  /ai/rag/chat/{conversationId}/history:
+    get:
+      operationId: RagController_getChatHistory
+      parameters:
+        - name: conversationId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
 info:
   title: Knowledge Hub
   description: The Knowledge Hub API description

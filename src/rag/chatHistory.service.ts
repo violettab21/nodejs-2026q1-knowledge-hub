@@ -7,6 +7,8 @@ interface ChatsStorage {
   history: any[];
 }
 
+const MAX_MESSAGES = Number(process.env.RAG_CONVERSATION_MAX_MESSAGES) || 20;
+
 @Injectable()
 export class ChatHistoryService {
   private chats: ChatsStorage[] = [];
@@ -18,16 +20,24 @@ export class ChatHistoryService {
   }
 
   saveChatHistory(chatId: string, history: Content[]) {
+    const limitedHistory =
+      history.length <= MAX_MESSAGES
+        ? history
+        : history.slice(history.length - MAX_MESSAGES);
     const chatData = {
       id: chatId,
-      history: history,
+      history: limitedHistory,
     };
     this.chats.push(chatData);
   }
 
   updateChatHistory(chatId: string, history: Content[]) {
+    const limitedHistory =
+      history.length <= MAX_MESSAGES
+        ? history
+        : history.slice(history.length - MAX_MESSAGES);
     const updatedChat = this.chats.find((chat) => chat.id === chatId);
-    updatedChat.history = history;
+    updatedChat.history = limitedHistory;
   }
 
   getChatById(chatId: string) {

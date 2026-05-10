@@ -140,6 +140,14 @@ export class RagService {
     return response;
   }
 
+  getChatHistory(conversationId: string) {
+    const chat = this.chatStorage.getChatById(conversationId);
+    if (!chat) {
+      return null;
+    }
+    return chat.history;
+  }
+
   async buildEmbedding(data: string) {
     const result = await this.ai.models.embedContent({
       model: 'gemini-embedding-2',

@@ -1,4 +1,4 @@
-import { IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsDefined, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class RagChatRequestDTO {
   @IsDefined()
@@ -7,4 +7,9 @@ export class RagChatRequestDTO {
   @IsOptional()
   @IsString()
   conversationId?: string;
+}
+
+export class ChatParams {
+  @IsUUID()
+  conversationId: string;
 }
